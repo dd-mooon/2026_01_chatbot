@@ -1,4 +1,4 @@
-# 촤비스 (CHAVIS)
+# 코니 (Connie)
 
 **Company Helper & AI Virtual Interactive Service**
 
@@ -8,7 +8,7 @@
 
 ## 📋 프로젝트 소개
 
-CHAVIS는 사내 규정 및 복지 정보를 AI 챗봇으로 제공하여, 신규 입사자의 정보 탐색 시간을 단축하고 지원 부서의 반복 업무를 자동화하는 프로젝트입니다.
+Connie는 사내 규정 및 복지 정보를 AI 챗봇으로 제공하여, 신규 입사자의 정보 탐색 시간을 단축하고 지원 부서의 반복 업무를 자동화하는 프로젝트입니다.
 
 ### 주요 특징
 
@@ -103,7 +103,7 @@ npm run open:chrome
 ```json
 {
   "status": "ok",
-  "message": "CHAVIS server is running"
+  "message": "Connie server is running"
 }
 ```
 
