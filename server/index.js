@@ -21,6 +21,7 @@ const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3';
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 /** Exact Match 지식 데이터 파일 경로 */
 const EXACT_MATCH_FILE = path.join(__dirname, 'data', 'exact-match-knowledge.json');
@@ -33,6 +34,64 @@ function loadExactMatchKnowledge() {
   } catch (err) {
     console.error('Exact Match 지식 데이터 로드 실패:', err.message);
     return [];
+  }
+}
+
+/** Exact Match 지식 데이터 저장 */
+function saveExactMatchKnowledge(data) {
+  fs.writeFileSync(EXACT_MATCH_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+/** 새 지식 ID 생성 (기존 최대 id + 1) */
+function generateNewId() {
+  const list = loadExactMatchKnowledge();
+  const max = list.reduce((acc, item) => Math.max(acc, Number(item.id) || 0), 0);
+  return String(max + 1);
+}
+
+/** ChromaDB에 지식 문서 추가 (RAG 검색용) */
+async function addToChromaDB(id, answer, refLink = '') {
+  try {
+    const collection = await chromaClient.getOrCreateCollection({ name: COLLECTION_NAME });
+    const chromaId = `knowledge_${id}`;
+    await collection.add({
+      ids: [chromaId],
+      documents: [answer],
+      metadatas: [{ refLink, source: 'knowledge' }],
+    });
+    return true;
+  } catch (err) {
+    console.error('ChromaDB 추가 오류:', err.message);
+    return false;
+  }
+}
+
+/** ChromaDB 지식 문서 수정 */
+async function updateInChromaDB(id, answer, refLink = '') {
+  try {
+    const collection = await chromaClient.getOrCreateCollection({ name: COLLECTION_NAME });
+    const chromaId = `knowledge_${id}`;
+    await collection.update({
+      ids: [chromaId],
+      documents: [answer],
+      metadatas: [{ refLink, source: 'knowledge' }],
+    });
+    return true;
+  } catch (err) {
+    console.error('ChromaDB 수정 오류:', err.message);
+    return false;
+  }
+}
+
+/** ChromaDB에서 지식 문서 삭제 */
+async function deleteFromChromaDB(id) {
+  try {
+    const collection = await chromaClient.getOrCreateCollection({ name: COLLECTION_NAME });
+    await collection.delete({ ids: [`knowledge_${id}`] });
+    return true;
+  } catch (err) {
+    console.error('ChromaDB 삭제 오류:', err.message);
+    return false;
   }
 }
 
@@ -107,6 +166,18 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'CHAVIS server is running' });
 });
 
+app.get('/', (req, res) => {
+  res.json({
+    name: 'CHAVIS',
+    message: '사내 지식 챗봇 API 서버',
+    endpoints: {
+      health: 'GET /health',
+      chat: 'POST /api/chat (body: { question: "..." })',
+      knowledge: 'GET /api/knowledge (목록), POST/PUT/DELETE /api/knowledge (CRUD)',
+    },
+  });
+});
+
 /** 챗봇 질문 → Exact Match 우선 검사 → 없으면 RAG 검색 + Ollama 답변 */
 app.post('/api/chat', async (req, res) => {
   try {
@@ -165,6 +236,104 @@ app.post('/api/chat', async (req, res) => {
       error: '답변 생성 중 오류가 발생했습니다.',
       detail: err.message,
     });
+  }
+});
+
+// ---------- 어드민: 지식 CRUD ----------
+
+/** GET /api/knowledge — 지식 목록 */
+app.get('/api/knowledge', (req, res) => {
+  try {
+    const list = loadExactMatchKnowledge();
+    res.json({ knowledge: list });
+  } catch (err) {
+    console.error('GET /api/knowledge error:', err);
+    res.status(500).json({ error: '지식 목록을 불러오지 못했습니다.', detail: err.message });
+  }
+});
+
+/** POST /api/knowledge — 지식 추가 (키워드, 답변, 참조 링크) */
+app.post('/api/knowledge', async (req, res) => {
+  try {
+    const { keywords, answer, refLink } = req.body;
+    if (!keywords || !Array.isArray(keywords) || keywords.length === 0 || !answer || typeof answer !== 'string') {
+      return res.status(400).json({
+        error: 'keywords(배열), answer(문자열)가 필요합니다.',
+      });
+    }
+
+    const id = generateNewId();
+    const item = { id, keywords, answer: answer.trim(), refLink: refLink?.trim() || '' };
+
+    const list = loadExactMatchKnowledge();
+    list.push(item);
+    saveExactMatchKnowledge(list);
+
+    const chromaOk = await addToChromaDB(id, item.answer, item.refLink);
+    if (!chromaOk) {
+      console.warn('ChromaDB 추가 실패했지만 JSON에는 저장되었습니다.');
+    }
+
+    res.status(201).json({ message: '지식이 추가되었습니다.', item });
+  } catch (err) {
+    console.error('POST /api/knowledge error:', err);
+    res.status(500).json({ error: '지식 추가에 실패했습니다.', detail: err.message });
+  }
+});
+
+/** PUT /api/knowledge/:id — 지식 수정 */
+app.put('/api/knowledge/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { keywords, answer, refLink } = req.body;
+
+    const list = loadExactMatchKnowledge();
+    const index = list.findIndex((item) => item.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: '해당 id의 지식을 찾을 수 없습니다.' });
+    }
+
+    const prev = list[index];
+    const updated = {
+      id,
+      keywords: Array.isArray(keywords) ? keywords : prev.keywords,
+      answer: typeof answer === 'string' ? answer.trim() : prev.answer,
+      refLink: refLink !== undefined ? String(refLink).trim() : prev.refLink,
+    };
+    list[index] = updated;
+    saveExactMatchKnowledge(list);
+
+    const chromaOk = await updateInChromaDB(id, updated.answer, updated.refLink);
+    if (!chromaOk) {
+      console.warn('ChromaDB 수정 실패했지만 JSON에는 반영되었습니다.');
+    }
+
+    res.json({ message: '지식이 수정되었습니다.', item: updated });
+  } catch (err) {
+    console.error('PUT /api/knowledge error:', err);
+    res.status(500).json({ error: '지식 수정에 실패했습니다.', detail: err.message });
+  }
+});
+
+/** DELETE /api/knowledge/:id — 지식 삭제 */
+app.delete('/api/knowledge/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const list = loadExactMatchKnowledge();
+    const index = list.findIndex((item) => item.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: '해당 id의 지식을 찾을 수 없습니다.' });
+    }
+
+    const [removed] = list.splice(index, 1);
+    saveExactMatchKnowledge(list);
+
+    await deleteFromChromaDB(id);
+
+    res.json({ message: '지식이 삭제되었습니다.', item: removed });
+  } catch (err) {
+    console.error('DELETE /api/knowledge error:', err);
+    res.status(500).json({ error: '지식 삭제에 실패했습니다.', detail: err.message });
   }
 });
 

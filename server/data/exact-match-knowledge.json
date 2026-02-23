@@ -1,14 +1,30 @@
 [
   {
     "id": "1",
-    "keywords": ["건전지", "건전지 어디", "건전지 위치"],
+    "keywords": [
+      "건전지",
+      "건전지 어디",
+      "건전지 위치"
+    ],
     "answer": "건전지는 탕비실 세 번째 서랍에 있습니다.",
     "refLink": "/guide/office-supplies"
   },
   {
     "id": "2",
-    "keywords": ["회식", "환영 회식", "입사자 회식"],
+    "keywords": [
+      "회식",
+      "환영 회식",
+      "입사자 회식"
+    ],
     "answer": "신규 입사자 환영 회식은 매달 마지막 주 금요일입니다.",
     "refLink": "/guide/welcome-party"
+  },
+  {
+    "id": "3",
+    "keywords": [
+      "연차"
+    ],
+    "answer": "1년차 연차 15일입니다.",
+    "refLink": "/guide/leave"
   }
 ]

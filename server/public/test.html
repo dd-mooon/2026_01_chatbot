@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CHAVIS API 테스트</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; max-width: 720px; margin: 0 auto; padding: 24px; background: #f5f5f5; }
+    h1 { margin-top: 0; color: #333; }
+    h2 { font-size: 1rem; color: #555; margin-bottom: 8px; }
+    section { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    input, textarea, button { font: inherit; }
+    input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 8px; }
+    textarea { min-height: 60px; resize: vertical; }
+    button { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; background: #2563eb; color: #fff; }
+    button:hover { background: #1d4ed8; }
+    button.secondary { background: #64748b; }
+    button.danger { background: #dc2626; }
+    .result { margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 6px; white-space: pre-wrap; word-break: break-all; font-size: 14px; }
+    .result.error { background: #fef2f2; color: #b91c1c; }
+    .result.success { background: #f0fdf4; color: #166534; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .row input { flex: 1; min-width: 120px; margin-bottom: 0; }
+    ul { margin: 0; padding-left: 20px; }
+    .knowledge-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .knowledge-item:last-child { border-bottom: none; }
+    .knowledge-item .body { flex: 1; }
+    .knowledge-item .meta { font-size: 12px; color: #64748b; }
+    .api-base { font-size: 12px; color: #64748b; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h1>CHAVIS API 테스트</h1>
+  <p class="api-base">API 주소: <span id="apiBase">http://localhost:3001</span></p>
+
+  <!-- 챗봇 질문 -->
+  <section>
+    <h2>1. 챗봇 질문 (POST /api/chat)</h2>
+    <div class="row">
+      <input type="text" id="chatQuestion" placeholder="질문을 입력하세요 (예: 건전지 어디 있어?)" />
+      <button type="button" id="btnChat">전송</button>
+    </div>
+    <div id="chatResult" class="result" style="display:none;"></div>
+  </section>
+
+  <!-- 지식 목록 -->
+  <section>
+    <h2>2. 지식 목록 (GET /api/knowledge)</h2>
+    <button type="button" id="btnList" class="secondary">목록 불러오기</button>
+    <div id="listResult" class="result" style="display:none;"></div>
+    <ul id="knowledgeList"></ul>
+  </section>
+
+  <!-- 지식 추가 -->
+  <section>
+    <h2>3. 지식 추가 (POST /api/knowledge)</h2>
+    <input type="text" id="addKeywords" placeholder="키워드 (쉼표로 구분, 예: 연차, 연차일수)" />
+    <textarea id="addAnswer" placeholder="답변 내용"></textarea>
+    <input type="text" id="addRefLink" placeholder="참조 링크 (선택, 예: /guide/leave)" />
+    <button type="button" id="btnAdd">추가</button>
+    <div id="addResult" class="result" style="display:none;"></div>
+  </section>
+
+  <script>
+    const API_BASE = window.location.origin;
+    document.getElementById('apiBase').textContent = API_BASE;
+
+    function showResult(el, text, isError) {
+      el.style.display = 'block';
+      el.textContent = text;
+      el.className = 'result ' + (isError ? 'error' : 'success');
+    }
+
+    function showJsonResult(el, data, isError) {
+      el.style.display = 'block';
+      el.textContent = JSON.stringify(data, null, 2);
+      el.className = 'result ' + (isError ? 'error' : '');
+    }
+
+    // 1. 챗봇 질문
+    document.getElementById('btnChat').onclick = async () => {
+      const input = document.getElementById('chatQuestion');
+      const resultEl = document.getElementById('chatResult');
+      const question = input.value.trim();
+      if (!question) {
+        showResult(resultEl, '질문을 입력하세요.', true);
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + '/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showJsonResult(resultEl, data, true);
+          return;
+        }
+        let text = '[유형] ' + (data.type || '-') + '\n\n[답변]\n' + (data.answer || '-');
+        if (data.refLink) text += '\n\n[참조] ' + data.refLink;
+        if (data.sources && data.sources.length) text += '\n\n[참고 문서]\n' + data.sources.map(s => s.text).join('\n---\n');
+        showResult(resultEl, text, false);
+      } catch (e) {
+        showResult(resultEl, '요청 실패: ' + e.message, true);
+      }
+    };
+
+    // 2. 지식 목록
+    document.getElementById('btnList').onclick = async () => {
+      const resultEl = document.getElementById('listResult');
+      const listEl = document.getElementById('knowledgeList');
+      try {
+        const res = await fetch(API_BASE + '/api/knowledge');
+        const data = await res.json();
+        showJsonResult(resultEl, data, !res.ok);
+        listEl.innerHTML = '';
+        if (data.knowledge && data.knowledge.length) {
+          data.knowledge.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'knowledge-item';
+            li.innerHTML = '<div class="body"><strong>' + item.answer + '</strong><div class="meta">id: ' + item.id + ' | 키워드: ' + (item.keywords || []).join(', ') + (item.refLink ? ' | ' + item.refLink : '') + '</div></div><button type="button" class="danger delete-btn" data-id="' + item.id + '">삭제</button>';
+            listEl.appendChild(li);
+          });
+          listEl.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.onclick = () => deleteKnowledge(btn.dataset.id);
+          });
+        }
+      } catch (e) {
+        showResult(resultEl, '요청 실패: ' + e.message, true);
+      }
+    };
+
+    async function deleteKnowledge(id) {
+      if (!confirm('id ' + id + ' 항목을 삭제할까요?')) return;
+      try {
+        const res = await fetch(API_BASE + '/api/knowledge/' + id, { method: 'DELETE' });
+        const data = await res.json();
+        alert(res.ok ? '삭제되었습니다.' : (data.error || data.detail || '삭제 실패'));
+        if (res.ok) document.getElementById('btnList').click();
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
+      }
+    }
+
+    // 3. 지식 추가
+    document.getElementById('btnAdd').onclick = async () => {
+      const keywordsStr = document.getElementById('addKeywords').value.trim();
+      const answer = document.getElementById('addAnswer').value.trim();
+      const refLink = document.getElementById('addRefLink').value.trim();
+      const resultEl = document.getElementById('addResult');
+      const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()).filter(Boolean) : [];
+      if (!keywords.length || !answer) {
+        showResult(resultEl, '키워드(쉼표 구분)와 답변을 입력하세요.', true);
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + '/api/knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
+        });
+        const data = await res.json();
+        showJsonResult(resultEl, data, !res.ok);
+        if (res.ok) {
+          document.getElementById('addKeywords').value = '';
+          document.getElementById('addAnswer').value = '';
+          document.getElementById('addRefLink').value = '';
+          document.getElementById('btnList').click();
+        }
+      } catch (e) {
+        showResult(resultEl, '요청 실패: ' + e.message, true);
+      }
+    };
+  </script>
+</body>
+</html>
