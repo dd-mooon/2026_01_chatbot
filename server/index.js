@@ -25,6 +25,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 /** Exact Match 지식 데이터 파일 경로 */
 const EXACT_MATCH_FILE = path.join(__dirname, 'data', 'exact-match-knowledge.json');
+/** 미답변 질문 저장 파일 경로 */
+const UNANSWERED_FILE = path.join(__dirname, 'data', 'unanswered.json');
 
 /** Exact Match 지식 데이터 로드 */
 function loadExactMatchKnowledge() {
@@ -47,6 +49,37 @@ function generateNewId() {
   const list = loadExactMatchKnowledge();
   const max = list.reduce((acc, item) => Math.max(acc, Number(item.id) || 0), 0);
   return String(max + 1);
+}
+
+/** 미답변 질문 목록 로드 */
+function loadUnanswered() {
+  try {
+    const data = fs.readFileSync(UNANSWERED_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (err) {
+    if (err.code !== 'ENOENT') console.error('미답변 목록 로드 실패:', err.message);
+    return [];
+  }
+}
+
+/** 미답변 질문 목록 저장 */
+function saveUnanswered(data) {
+  fs.writeFileSync(UNANSWERED_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+/** 미답변 질문 추가 (중복 방지: 같은 질문이 최근에 있으면 추가 안 함) */
+function addUnanswered(question) {
+  const list = loadUnanswered();
+  const q = question.trim();
+  if (!q) return;
+  const recent = list.some((item) => item.question === q);
+  if (recent) return;
+  list.push({
+    id: String(Date.now()),
+    question: q,
+    createdAt: new Date().toISOString(),
+  });
+  saveUnanswered(list);
 }
 
 /** ChromaDB에 지식 문서 추가 (RAG 검색용) */
@@ -174,6 +207,7 @@ app.get('/', (req, res) => {
       health: 'GET /health',
       chat: 'POST /api/chat (body: { question: "..." })',
       knowledge: 'GET /api/knowledge (목록), POST/PUT/DELETE /api/knowledge (CRUD)',
+      unanswered: 'GET /api/unanswered (미답변 목록), DELETE /api/unanswered/:id (제거)',
     },
   });
 });
@@ -207,6 +241,7 @@ app.post('/api/chat', async (req, res) => {
     
     // ChromaDB에 데이터가 없거나 연결 실패 시
     if (sources.length === 0) {
+      addUnanswered(trimmedQuestion);
       return res.json({
         answer: '해당 정보는 등록되어 있지 않습니다. 인사/총무에 문의해 주세요.',
         type: 'no_match',
@@ -225,6 +260,7 @@ app.post('/api/chat', async (req, res) => {
       });
     } catch (ollamaErr) {
       console.error('Ollama 오류:', ollamaErr.message);
+      addUnanswered(trimmedQuestion);
       res.status(500).json({
         error: '답변 생성 중 오류가 발생했습니다.',
         detail: 'Ollama 서비스가 실행 중인지 확인해주세요.',
@@ -334,6 +370,37 @@ app.delete('/api/knowledge/:id', async (req, res) => {
   } catch (err) {
     console.error('DELETE /api/knowledge error:', err);
     res.status(500).json({ error: '지식 삭제에 실패했습니다.', detail: err.message });
+  }
+});
+
+// ---------- 미답변 질문 (피드백 루프) ----------
+
+/** GET /api/unanswered — 미답변 질문 목록 (어드민용) */
+app.get('/api/unanswered', (req, res) => {
+  try {
+    const list = loadUnanswered();
+    res.json({ unanswered: list });
+  } catch (err) {
+    console.error('GET /api/unanswered error:', err);
+    res.status(500).json({ error: '미답변 목록을 불러오지 못했습니다.', detail: err.message });
+  }
+});
+
+/** DELETE /api/unanswered/:id — 미답변 항목 제거 (답변 등록 후 처리 완료 시) */
+app.delete('/api/unanswered/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const list = loadUnanswered();
+    const index = list.findIndex((item) => item.id === id);
+    if (index === -1) {
+      return res.status(404).json({ error: '해당 id의 미답변 항목을 찾을 수 없습니다.' });
+    }
+    const [removed] = list.splice(index, 1);
+    saveUnanswered(list);
+    res.json({ message: '미답변 목록에서 제거되었습니다.', item: removed });
+  } catch (err) {
+    console.error('DELETE /api/unanswered error:', err);
+    res.status(500).json({ error: '제거에 실패했습니다.', detail: err.message });
   }
 });
 

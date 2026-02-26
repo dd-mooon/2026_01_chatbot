@@ -28,11 +28,14 @@
     .knowledge-item .body { flex: 1; }
     .knowledge-item .meta { font-size: 12px; color: #64748b; }
     .api-base { font-size: 12px; color: #64748b; margin-bottom: 16px; }
+    .unanswered-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .unanswered-item:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
   <h1>CHAVIS API 테스트</h1>
-  <p class="api-base">API 주소: <span id="apiBase">http://localhost:3001</span></p>
+  <p class="api-base">API 주소: <span id="apiBase">http://localhost:3001</span> <span id="serverStatus"></span></p>
+  <div id="serverWarning" style="display:none; margin-bottom:16px; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; color:#b91c1c; font-size:14px;"></div>
 
   <!-- 챗봇 질문 -->
   <section>
@@ -62,9 +65,65 @@
     <div id="addResult" class="result" style="display:none;"></div>
   </section>
 
+  <!-- 미답변 질문 목록 -->
+  <section>
+    <h2>4. 미답변 질문 (GET /api/unanswered)</h2>
+    <p style="font-size:12px; color:#64748b; margin-bottom:8px;">등록된 지식이 없거나 오류로 답하지 못한 질문이 자동으로 쌓입니다.</p>
+    <button type="button" id="btnUnanswered" class="secondary">미답변 목록 불러오기</button>
+    <div id="unansweredResult" class="result" style="display:none;"></div>
+    <ul id="unansweredList"></ul>
+  </section>
+
   <script>
     const API_BASE = window.location.origin;
     document.getElementById('apiBase').textContent = API_BASE;
+
+    // 페이지 로드 시 서버 연결 확인
+    (async function checkServer() {
+      const statusEl = document.getElementById('serverStatus');
+      const warnEl = document.getElementById('serverWarning');
+      try {
+        const res = await fetch(API_BASE + '/health', { method: 'GET' });
+        const text = await res.text();
+        if (text.trim().startsWith('<')) {
+          warnEl.style.display = 'block';
+          warnEl.innerHTML = '⚠️ 이 주소에서는 CHAVIS 서버가 아닌 다른 프로그램(HTML 페이지)이 동작 중입니다.<br><br>' +
+            '1) 주소창이 <strong>http://localhost:3001/test.html</strong> 인지 확인하세요.<br>' +
+            '2) 터미널에서 <strong>cd server</strong> 후 <strong>npm start</strong> 로 CHAVIS 서버만 실행하세요.<br>' +
+            '3) React·Vite 등 다른 앱이 3001 포트를 쓰고 있다면 그 앱을 끄거나, server 폴더의 서버만 3001에서 실행되게 하세요.';
+          return;
+        }
+        const data = JSON.parse(text);
+        if (data.status === 'ok') {
+          statusEl.textContent = '✓ 서버 연결됨';
+          statusEl.style.color = '#166534';
+        } else {
+          statusEl.textContent = '(응답 이상)';
+          statusEl.style.color = '#b91c1c';
+        }
+      } catch (e) {
+        warnEl.style.display = 'block';
+        warnEl.innerHTML = '⚠️ CHAVIS 서버에 연결되지 않았습니다.<br><br>' +
+          '1) 테스트 페이지를 <strong>http://localhost:3001/test.html</strong> 로 열었는지 확인하세요. (파일 더블클릭 ❌)<br>' +
+          '2) 터미널에서 <strong>cd ' + (API_BASE.includes('3001') ? 'server' : '2026_01_chatbot/server') + '</strong> 후 <strong>npm start</strong> 를 실행하세요.<br>' +
+          '3) 포트 3001이 다른 프로그램에 사용 중이면 충돌할 수 있습니다.';
+        statusEl.textContent = '✗ 연결 안 됨';
+        statusEl.style.color = '#b91c1c';
+      }
+    })();
+
+    /** 응답을 JSON으로 파싱. HTML이 오면 안내 메시지로 에러 throw */
+    async function parseJsonRes(res) {
+      const text = await res.text();
+      if (text.trim().startsWith('<')) {
+        throw new Error('서버가 HTML을 반환했습니다. 테스트 페이지를 http://localhost:3001/test.html 로 열었는지 확인하고, 터미널에서 npm start로 서버를 실행했는지 확인하세요.');
+      }
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error('응답 파싱 실패: ' + e.message);
+      }
+    }
 
     function showResult(el, text, isError) {
       el.style.display = 'block';
@@ -93,7 +152,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question }),
         });
-        const data = await res.json();
+        const data = await parseJsonRes(res);
         if (!res.ok) {
           showJsonResult(resultEl, data, true);
           return;
@@ -113,7 +172,7 @@
       const listEl = document.getElementById('knowledgeList');
       try {
         const res = await fetch(API_BASE + '/api/knowledge');
-        const data = await res.json();
+        const data = await parseJsonRes(res);
         showJsonResult(resultEl, data, !res.ok);
         listEl.innerHTML = '';
         if (data.knowledge && data.knowledge.length) {
@@ -136,9 +195,52 @@
       if (!confirm('id ' + id + ' 항목을 삭제할까요?')) return;
       try {
         const res = await fetch(API_BASE + '/api/knowledge/' + id, { method: 'DELETE' });
-        const data = await res.json();
+        const data = await parseJsonRes(res);
         alert(res.ok ? '삭제되었습니다.' : (data.error || data.detail || '삭제 실패'));
         if (res.ok) document.getElementById('btnList').click();
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
+      }
+    }
+
+    // 4. 미답변 목록
+    document.getElementById('btnUnanswered').onclick = async () => {
+      const resultEl = document.getElementById('unansweredResult');
+      const listEl = document.getElementById('unansweredList');
+      try {
+        const res = await fetch(API_BASE + '/api/unanswered');
+        const data = await parseJsonRes(res);
+        showJsonResult(resultEl, data, !res.ok);
+        listEl.innerHTML = '';
+        if (data.unanswered && data.unanswered.length) {
+          data.unanswered.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'unanswered-item';
+            li.innerHTML = '<span>' + escapeHtml(item.question) + '</span><span style="font-size:12px; color:#64748b;">' + (item.createdAt || '').slice(0, 19) + '</span><button type="button" class="danger remove-unanswered-btn" data-id="' + escapeHtml(item.id) + '">제거</button>';
+            listEl.appendChild(li);
+          });
+          listEl.querySelectorAll('.remove-unanswered-btn').forEach(btn => {
+            btn.onclick = () => removeUnanswered(btn.dataset.id);
+          });
+        }
+      } catch (e) {
+        showResult(resultEl, '요청 실패: ' + e.message, true);
+      }
+    };
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    async function removeUnanswered(id) {
+      if (!confirm('이 항목을 미답변 목록에서 제거할까요?')) return;
+      try {
+        const res = await fetch(API_BASE + '/api/unanswered/' + id, { method: 'DELETE' });
+        const data = await parseJsonRes(res);
+        alert(res.ok ? '제거되었습니다.' : (data.error || data.detail || '제거 실패'));
+        if (res.ok) document.getElementById('btnUnanswered').click();
       } catch (e) {
         alert('요청 실패: ' + e.message);
       }
@@ -161,7 +263,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
         });
-        const data = await res.json();
+        const data = await parseJsonRes(res);
         showJsonResult(resultEl, data, !res.ok);
         if (res.ok) {
           document.getElementById('addKeywords').value = '';

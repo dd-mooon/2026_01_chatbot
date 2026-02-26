@@ -160,6 +160,25 @@ curl -s -X DELETE http://localhost:3001/api/knowledge/3
 
 ---
 
+## 2-8. 미답변 질문 (피드백 루프)
+
+등록된 지식이 없거나 Ollama 오류로 답을 주지 못한 질문이 자동으로 미답변 목록에 쌓입니다.
+
+### 미답변 목록 (GET /api/unanswered)
+```bash
+curl -s http://localhost:3001/api/unanswered
+```
+**예상:** `{ "unanswered": [ { "id", "question", "createdAt" }, ... ] }`
+
+### 미답변 항목 제거 (DELETE /api/unanswered/:id)
+답변을 지식으로 등록한 뒤 목록에서 제거할 때 사용.
+```bash
+curl -s -X DELETE http://localhost:3001/api/unanswered/1730123456789
+```
+**예상:** `message: "미답변 목록에서 제거되었습니다."`, `item`에 제거된 항목.
+
+---
+
 ## 3. 한 번에 여러 개 테스트 (쉘 스크립트)
 
 `server` 폴더에서:
@@ -208,5 +227,7 @@ curl -s -X POST http://localhost:3001/api/chat -H "Content-Type: application/jso
 | 지식 목록                 | GET /api/knowledge           | knowledge 배열 반환                 |
 | 지식 추가                 | POST /api/knowledge (keywords, answer, refLink) | 201 + item 반환     |
 | 지식 수정/삭제             | PUT/DELETE /api/knowledge/:id | 200 + message·item                 |
+| 미답변 목록                | GET /api/unanswered           | unanswered 배열 반환               |
+| 미답변 제거                | DELETE /api/unanswered/:id    | 200 + message·item                 |
 
 이 순서대로 하면 CHAVIS API를 자세히 테스트할 수 있습니다.
