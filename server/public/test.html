@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CHAVIS API 테스트</title>
+  <title>Connie API 테스트</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; max-width: 720px; margin: 0 auto; padding: 24px; background: #f5f5f5; }
@@ -33,7 +33,7 @@
   </style>
 </head>
 <body>
-  <h1>CHAVIS API 테스트</h1>
+  <h1>Connie API 테스트</h1>
   <p class="api-base">API 주소: <span id="apiBase">http://localhost:3001</span> <span id="serverStatus"></span></p>
   <div id="serverWarning" style="display:none; margin-bottom:16px; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; color:#b91c1c; font-size:14px;"></div>
 
@@ -87,9 +87,9 @@
         const text = await res.text();
         if (text.trim().startsWith('<')) {
           warnEl.style.display = 'block';
-          warnEl.innerHTML = '⚠️ 이 주소에서는 CHAVIS 서버가 아닌 다른 프로그램(HTML 페이지)이 동작 중입니다.<br><br>' +
+          warnEl.innerHTML = '⚠️ 이 주소에서는 Connie 서버가 아닌 다른 프로그램(HTML 페이지)이 동작 중입니다.<br><br>' +
             '1) 주소창이 <strong>http://localhost:3001/test.html</strong> 인지 확인하세요.<br>' +
-            '2) 터미널에서 <strong>cd server</strong> 후 <strong>npm start</strong> 로 CHAVIS 서버만 실행하세요.<br>' +
+            '2) 터미널에서 <strong>cd server</strong> 후 <strong>npm start</strong> 로 Connie 서버만 실행하세요.<br>' +
             '3) React·Vite 등 다른 앱이 3001 포트를 쓰고 있다면 그 앱을 끄거나, server 폴더의 서버만 3001에서 실행되게 하세요.';
           return;
         }
@@ -103,7 +103,7 @@
         }
       } catch (e) {
         warnEl.style.display = 'block';
-        warnEl.innerHTML = '⚠️ CHAVIS 서버에 연결되지 않았습니다.<br><br>' +
+        warnEl.innerHTML = '⚠️ Connie 서버에 연결되지 않았습니다.<br><br>' +
           '1) 테스트 페이지를 <strong>http://localhost:3001/test.html</strong> 로 열었는지 확인하세요. (파일 더블클릭 ❌)<br>' +
           '2) 터미널에서 <strong>cd ' + (API_BASE.includes('3001') ? 'server' : '2026_01_chatbot/server') + '</strong> 후 <strong>npm start</strong> 를 실행하세요.<br>' +
           '3) 포트 3001이 다른 프로그램에 사용 중이면 충돌할 수 있습니다.';

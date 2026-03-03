@@ -180,7 +180,7 @@ async function searchKnowledge(question) {
 
 /** Ollama로 컨텍스트 + 질문 기반 답변 생성 */
 async function getAnswerFromOllama(contextText, question) {
-  const prompt = `당신은 사내 지식 가이드 챗봇(CHAVIS)입니다. 아래 [사내 지식]만을 참고하여 질문에 친절하고 정확하게 답변하세요. 참고 자료에 없는 내용은 "해당 정보는 등록되어 있지 않습니다. 인사/총무에 문의해 주세요."라고 답하세요.
+  const prompt = `당신은 사내 지식 가이드 챗봇(Connie)입니다. 아래 [사내 지식]만을 참고하여 질문에 친절하고 정확하게 답변하세요. 참고 자료에 없는 내용은 "해당 정보는 등록되어 있지 않습니다. 인사/총무에 문의해 주세요."라고 답하세요.
 
 [사내 지식]
 ${contextText}
@@ -196,12 +196,12 @@ ${question}`;
 }
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'CHAVIS server is running' });
+  res.json({ status: 'ok', message: 'Connie server is running' });
 });
 
 app.get('/', (req, res) => {
   res.json({
-    name: 'CHAVIS',
+    name: 'Connie',
     message: '사내 지식 챗봇 API 서버',
     endpoints: {
       health: 'GET /health',
@@ -209,6 +209,7 @@ app.get('/', (req, res) => {
       knowledge: 'GET /api/knowledge (목록), POST/PUT/DELETE /api/knowledge (CRUD)',
       unanswered: 'GET /api/unanswered (미답변 목록), DELETE /api/unanswered/:id (제거)',
     },
+    admin: 'GET /admin.html (지식·미답변 관리 — 여기서 넣은 데이터가 챗봇에서 사용됨)',
   });
 });
 
@@ -405,5 +406,5 @@ app.delete('/api/unanswered/:id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 CHAVIS server running at http://localhost:${PORT}`);
+  console.log(`🚀 Connie server running at http://localhost:${PORT}`);
 });

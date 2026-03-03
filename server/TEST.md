@@ -1,4 +1,4 @@
-# CHAVIS API 테스트 가이드
+# Connie API 테스트 가이드
 
 서버(`npm start`)가 **실행 중인 상태**에서 아래 방법으로 테스트하세요.
 
@@ -11,7 +11,7 @@
 cd server
 npm start
 ```
-`🚀 CHAVIS server running at http://localhost:3001` 이 보이면 준비 완료.
+`🚀 Connie server running at http://localhost:3001` 이 보이면 준비 완료.
 
 ### (RAG 답변 테스트 시) Ollama 실행
 - Exact Match만 테스트하면 불필요.
@@ -31,7 +31,7 @@ curl http://localhost:3001/
 **예상 응답:**
 ```json
 {
-  "name": "CHAVIS",
+  "name": "Connie",
   "message": "사내 지식 챗봇 API 서버",
   "endpoints": {
     "health": "GET /health",
@@ -52,7 +52,7 @@ curl http://localhost:3001/health
 
 **예상 응답:**
 ```json
-{"status":"ok","message":"CHAVIS server is running"}
+{"status":"ok","message":"Connie server is running"}
 ```
 
 ---
@@ -230,4 +230,4 @@ curl -s -X POST http://localhost:3001/api/chat -H "Content-Type: application/jso
 | 미답변 목록                | GET /api/unanswered           | unanswered 배열 반환               |
 | 미답변 제거                | DELETE /api/unanswered/:id    | 200 + message·item                 |
 
-이 순서대로 하면 CHAVIS API를 자세히 테스트할 수 있습니다.
+이 순서대로 하면 Connie API를 자세히 테스트할 수 있습니다.
