@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>코니 어드민 — 지식 베이스 관리</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; max-width: 720px; margin: 0 auto; padding: 24px; background: #f5f5f5; }
+    h1 { margin-top: 0; color: #333; }
+    h2 { font-size: 1rem; color: #555; margin-bottom: 8px; }
+    section { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    input, textarea, button { font: inherit; }
+    input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 8px; }
+    textarea { min-height: 60px; resize: vertical; }
+    button { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; background: #2563eb; color: #fff; }
+    button:hover { background: #1d4ed8; }
+    button.secondary { background: #64748b; }
+    button.danger { background: #dc2626; }
+    .result { margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 6px; white-space: pre-wrap; word-break: break-all; font-size: 14px; }
+    .result.error { background: #fef2f2; color: #b91c1c; }
+    .result.success { background: #f0fdf4; color: #166534; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    ul { margin: 0; padding-left: 20px; }
+    .knowledge-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .knowledge-item:last-child { border-bottom: none; }
+    .knowledge-item .body { flex: 1; }
+    .knowledge-item .meta { font-size: 12px; color: #64748b; }
+    .unanswered-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .unanswered-item:last-child { border-bottom: none; }
+    .notice { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+    .notice strong { display: block; margin-bottom: 4px; }
+    .link-chat { color: #2563eb; text-decoration: none; }
+    .link-chat:hover { text-decoration: underline; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="admin-header">
+    <h1>코니 어드민</h1>
+    <span id="serverStatus" style="font-size:14px; color:#64748b;"></span>
+  </div>
+  <p class="notice">
+    <strong>여기서 등록·수정한 지식이 챗봇(채팅)에서 바로 사용됩니다.</strong>
+    사용자 화면: <a href="http://localhost:5173" target="_blank" rel="noopener" class="link-chat">챗봇 열기 (localhost:5173)</a>
+  </p>
+  <div id="serverWarning" style="display:none; margin-bottom:16px; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; color:#b91c1c; font-size:14px;"></div>
+
+  <!-- 지식 베이스 -->
+  <section>
+    <h2>1. 지식 베이스 (키워드 · 답변 · 링크)</h2>
+    <p style="font-size:12px; color:#64748b; margin-bottom:8px;">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다.</p>
+    <button type="button" id="btnList" class="secondary">목록 불러오기</button>
+    <div id="listResult" class="result" style="display:none;"></div>
+    <ul id="knowledgeList"></ul>
+  </section>
+
+  <!-- 지식 추가 -->
+  <section>
+    <h2>2. 지식 추가</h2>
+    <input type="text" id="addKeywords" placeholder="키워드 (쉼표 구분, 예: 연차, 연차일수)" />
+    <textarea id="addAnswer" placeholder="답변 내용 (챗봇이 사용자에게 보여줄 문장)"></textarea>
+    <input type="text" id="addRefLink" placeholder="참조 링크 (선택, 예: /guide/leave)" />
+    <button type="button" id="btnAdd">추가</button>
+    <div id="addResult" class="result" style="display:none;"></div>
+  </section>
+
+  <!-- 미답변 질문 -->
+  <section>
+    <h2>3. 미답변 질문</h2>
+    <p style="font-size:12px; color:#64748b; margin-bottom:8px;">챗봇이 답하지 못한 질문이 쌓입니다. 답을 등록한 뒤 위 "지식 추가"로 넣고, 여기서는 제거하세요.</p>
+    <button type="button" id="btnUnanswered" class="secondary">미답변 목록 불러오기</button>
+    <div id="unansweredResult" class="result" style="display:none;"></div>
+    <ul id="unansweredList"></ul>
+  </section>
+
+  <script>
+    const API_BASE = window.location.origin;
+
+    (async function checkServer() {
+      const statusEl = document.getElementById('serverStatus');
+      const warnEl = document.getElementById('serverWarning');
+      try {
+        const res = await fetch(API_BASE + '/health', { method: 'GET' });
+        const text = await res.text();
+        if (text.trim().startsWith('<')) {
+          warnEl.style.display = 'block';
+          warnEl.innerHTML = '⚠️ 서버에 연결되지 않았습니다. 터미널에서 <strong>cd server</strong> 후 <strong>npm start</strong>를 실행하세요.';
+          return;
+        }
+        const data = JSON.parse(text);
+        if (data.status === 'ok') {
+          statusEl.textContent = '✓ 서버 연결됨';
+          statusEl.style.color = '#166534';
+        }
+      } catch (e) {
+        warnEl.style.display = 'block';
+        warnEl.innerHTML = '⚠️ 서버에 연결되지 않았습니다. <strong>npm start</strong>로 서버를 실행한 뒤 이 페이지를 새로고침하세요.';
+        statusEl.textContent = '✗ 연결 안 됨';
+        statusEl.style.color = '#b91c1c';
+      }
+    })();
+
+    async function parseJsonRes(res) {
+      const text = await res.text();
+      if (text.trim().startsWith('<')) throw new Error('서버가 HTML을 반환했습니다. 서버가 실행 중인지 확인하세요.');
+      return JSON.parse(text);
+    }
+
+    function showJsonResult(el, data, isError) {
+      el.style.display = 'block';
+      el.textContent = JSON.stringify(data, null, 2);
+      el.className = 'result ' + (isError ? 'error' : '');
+    }
+
+    function showResult(el, text, isError) {
+      el.style.display = 'block';
+      el.textContent = text;
+      el.className = 'result ' + (isError ? 'error' : 'success');
+    }
+
+    document.getElementById('btnList').onclick = async () => {
+      const resultEl = document.getElementById('listResult');
+      const listEl = document.getElementById('knowledgeList');
+      try {
+        const res = await fetch(API_BASE + '/api/knowledge');
+        const data = await parseJsonRes(res);
+        showJsonResult(resultEl, data, !res.ok);
+        listEl.innerHTML = '';
+        if (data.knowledge && data.knowledge.length) {
+          data.knowledge.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'knowledge-item';
+            li.innerHTML = '<div class="body"><strong>' + escapeHtml(item.answer) + '</strong><div class="meta">id: ' + escapeHtml(item.id) + ' | 키워드: ' + (item.keywords || []).map(escapeHtml).join(', ') + (item.refLink ? ' | ' + escapeHtml(item.refLink) : '') + '</div></div><button type="button" class="danger delete-btn" data-id="' + escapeHtml(item.id) + '">삭제</button>';
+            listEl.appendChild(li);
+          });
+          listEl.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.onclick = () => deleteKnowledge(btn.dataset.id);
+          });
+        }
+      } catch (e) {
+        showResult(resultEl, '요청 실패: ' + e.message, true);
+      }
+    };
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    async function deleteKnowledge(id) {
+      if (!confirm('이 지식을 삭제할까요? 챗봇에서 더 이상 사용되지 않습니다.')) return;
+      try {
+        const res = await fetch(API_BASE + '/api/knowledge/' + id, { method: 'DELETE' });
+        const data = await parseJsonRes(res);
+        alert(res.ok ? '삭제되었습니다.' : (data.error || data.detail || '삭제 실패'));
+        if (res.ok) document.getElementById('btnList').click();
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
+      }
+    }
+
+    document.getElementById('btnAdd').onclick = async () => {
+      const keywordsStr = document.getElementById('addKeywords').value.trim();
+      const answer = document.getElementById('addAnswer').value.trim();
+      const refLink = document.getElementById('addRefLink').value.trim();
+      const resultEl = document.getElementById('addResult');
+      const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()).filter(Boolean) : [];
+      if (!keywords.length || !answer) {
+        showResult(resultEl, '키워드(쉼표 구분)와 답변을 입력하세요.', true);
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + '/api/knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
+        });
+        const data = await parseJsonRes(res);
+        showJsonResult(resultEl, data, !res.ok);
+        if (res.ok) {
+          document.getElementById('addKeywords').value = '';
+          document.getElementById('addAnswer').value = '';
+          document.getElementById('addRefLink').value = '';
+          document.getElementById('btnList').click();
+        }
+      } catch (e) {
+        showResult(resultEl, '요청 실패: ' + e.message, true);
+      }
+    };
+
+    document.getElementById('btnUnanswered').onclick = async () => {
+      const resultEl = document.getElementById('unansweredResult');
+      const listEl = document.getElementById('unansweredList');
+      try {
+        const res = await fetch(API_BASE + '/api/unanswered');
+        const data = await parseJsonRes(res);
+        showJsonResult(resultEl, data, !res.ok);
+        listEl.innerHTML = '';
+        if (data.unanswered && data.unanswered.length) {
+          data.unanswered.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'unanswered-item';
+            li.innerHTML = '<span>' + escapeHtml(item.question) + '</span><span style="font-size:12px; color:#64748b;">' + (item.createdAt || '').slice(0, 19) + '</span><button type="button" class="danger remove-unanswered-btn" data-id="' + escapeHtml(item.id) + '">제거</button>';
+            listEl.appendChild(li);
+          });
+          listEl.querySelectorAll('.remove-unanswered-btn').forEach(btn => {
+            btn.onclick = () => removeUnanswered(btn.dataset.id);
+          });
+        }
+      } catch (e) {
+        showResult(resultEl, '요청 실패: ' + e.message, true);
+      }
+    };
+
+    async function removeUnanswered(id) {
+      if (!confirm('미답변 목록에서 제거할까요?')) return;
+      try {
+        const res = await fetch(API_BASE + '/api/unanswered/' + id, { method: 'DELETE' });
+        const data = await parseJsonRes(res);
+        alert(res.ok ? '제거되었습니다.' : (data.error || data.detail || '제거 실패'));
+        if (res.ok) document.getElementById('btnUnanswered').click();
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
+      }
+    }
+  </script>
+</body>
+</html>
