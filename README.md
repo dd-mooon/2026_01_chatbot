@@ -74,7 +74,7 @@ ollama pull llama3
 
 ## 🚀 실행 방법
 
-### 서버 시작
+### 1. 서버 시작 (백엔드)
 
 ```bash
 cd server
@@ -82,6 +82,22 @@ npm run start
 ```
 
 서버가 `http://localhost:3001`에서 실행됩니다.
+
+### 2. 클라이언트 시작 (챗봇 UI)
+
+**다른 터미널에서:**
+
+```bash
+cd client
+npm install   # 최초 1회
+npm run dev
+```
+
+브라우저에서 `http://localhost:5173`으로 접속하면 챗봇 화면이 열립니다. (API는 서버 3001로 프록시됩니다.)
+
+### 배포
+
+프론트(Vercel) + 백엔드(Railway/Render)로 배포하는 방법은 **[DEPLOY.md](./DEPLOY.md)** 를 참고하세요.
 
 ### Chrome 새창으로 열기 (macOS)
 
