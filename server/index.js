@@ -38,7 +38,7 @@ const COLLECTION_NAME = 'company_knowledge';
 const RAG_TOP_K = 5;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json());  
 app.use(express.static(path.join(__dirname, 'public')));
 
 /** Exact Match 지식 데이터 파일 경로 */

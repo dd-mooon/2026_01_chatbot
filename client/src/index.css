@@ -4,12 +4,41 @@
 @source "./**/*.jsx";
 @source "./**/*.tsx";
 
+:root {
+  --chat-user-bg: #2563eb;
+  --chat-bot-bg: #ffffff;
+  --chat-bot-border: #e2e8f0;
+  --accent: #0f766e;
+  --accent-hover: #0d9488;
+  --surface: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* 스크롤바 스타일 (선택) */
+main::-webkit-scrollbar {
+  width: 6px;
+}
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+main::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+main::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
