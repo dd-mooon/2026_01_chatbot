@@ -10,6 +10,14 @@ const FAQ_CHIPS = [
   '연차는 며칠이야?',
 ]
 
+// 답변 출처 라벨 (type에 따라 표시)
+const ANSWER_SOURCE_LABEL = {
+  exact_match: '📋 어드민에 등록된 지식에서 찾은 답변',
+  rag: '🤖 등록된 지식을 참고해 AI(Ollama)가 생성한 답변',
+  no_match: '🤖 등록된 정보가 없어 AI(Ollama)가 안내한 메시지',
+  no_match_general: '🤖 AI가 일반 지식으로 답변 (등록된 사내 지식 아님)',
+}
+
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -54,6 +62,10 @@ function App() {
           content: data.answer,
           refLink: data.refLink || null,
           type: data.type,
+          ollamaFailed: data.ollamaFailed ?? false,
+          ollamaError: data.ollamaError || null,
+          generalKnowledge: data.generalKnowledge ?? false,
+          disclaimer: data.disclaimer || null,
         },
       ])
     } catch (err) {
@@ -113,6 +125,23 @@ function App() {
               }`}
             >
               <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+              {msg.disclaimer && (
+                <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
+                  {msg.disclaimer}
+                </p>
+              )}
+              {msg.role === 'assistant' && msg.type && (
+                <p className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-2">
+                  {msg.type === 'no_match' && msg.ollamaFailed
+                    ? '⚠️ 등록된 정보 없음 (Ollama 미연결로 기본 안내만 표시됨)'
+                    : msg.type === 'no_match' && msg.generalKnowledge
+                      ? ANSWER_SOURCE_LABEL.no_match_general
+                      : ANSWER_SOURCE_LABEL[msg.type]}
+                </p>
+              )}
+              {msg.ollamaFailed && (
+                <p className="mt-1 text-xs text-amber-600">⚠️ Ollama 연결 실패. 기본 안내만 표시됨. (서버 로그 또는 GET /api/ollama-status 확인)</p>
+              )}
               {msg.refLink && (
                 <a
                   href={msg.refLink}

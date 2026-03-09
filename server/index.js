@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import { ChromaClient } from 'chromadb';
-import ollama from 'ollama';
+import { Ollama } from 'ollama';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -13,11 +13,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Ollama 클라이언트 (OLLAMA_HOST 미설정 시 http://127.0.0.1:11434)
+const ollama = new Ollama({
+  host: process.env.OLLAMA_HOST || 'http://127.0.0.1:11434',
+});
+// 설치된 모델명에 맞춤 (예: llama3:latest). 환경변수 OLLAMA_MODEL로 변경 가능
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3:latest';
+// Ollama 응답 대기 시간(ms). 첫 요청 시 모델 로딩으로 1~2분 걸릴 수 있음
+const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS) || 120000;
+
+/** Promise를 지정 시간 후 reject (타임아웃) */
+function withTimeout(promise, ms, label = 'Ollama') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} 응답 시간 초과(${ms / 1000}초). Ollama가 실행 중인지, 모델이 로드되었는지 확인하세요.`)), ms)
+    ),
+  ]);
+}
+
 // ChromaDB 클라이언트 (서버 실행 시 한 번만 생성)
 const chromaClient = new ChromaClient();
 const COLLECTION_NAME = 'company_knowledge';
 const RAG_TOP_K = 5;
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3';
 
 app.use(cors());
 app.use(express.json());
@@ -188,15 +206,78 @@ ${contextText}
 [질문]
 ${question}`;
 
-  const response = await ollama.chat({
-    model: OLLAMA_MODEL,
-    messages: [{ role: 'user', content: prompt }],
-  });
+  const response = await withTimeout(
+    ollama.chat({
+      model: OLLAMA_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+    OLLAMA_TIMEOUT_MS,
+    'Ollama(RAG)'
+  );
   return response.message?.content ?? '';
+}
+
+/** 등록된 정보가 없을 때 Ollama가 일반 지식으로 답변 생성 */
+const FALLBACK_NO_KNOWLEDGE = '해당 정보는 등록되어 있지 않습니다. 인사/총무에 문의해 주세요.';
+const GENERAL_KNOWLEDGE_DISCLAIMER = '※ 이 답변은 등록된 사내 지식이 아닌 AI의 일반 지식입니다. 정확한 정보는 인사/총무에 문의해 주세요.';
+
+async function getGeneralKnowledgeReplyFromOllama(question) {
+  const prompt = `당신은 친절한 안내 챗봇입니다. 아래 질문에 대해 알고 있는 일반 지식 범위에서 간단하고 도움이 되게 한국어로 답변해 주세요. 모르는 내용이면 "해당 정보는 잘 모르겠습니다. 인사/총무에 문의해 주세요."라고만 답하세요.`;
+
+  const response = await withTimeout(
+    ollama.chat({
+      model: OLLAMA_MODEL,
+      messages: [{ role: 'user', content: `${prompt}\n\n[질문]\n${question}` }],
+    }),
+    OLLAMA_TIMEOUT_MS,
+    'Ollama(일반지식)'
+  );
+  const text = (response.message?.content ?? '').trim();
+  return text || FALLBACK_NO_KNOWLEDGE;
 }
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Connie server is running' });
+});
+
+/** Ollama 연결·모델 확인 (디버깅용). ?test=chat 이면 실제 답변 생성 테스트 */
+app.get('/api/ollama-status', async (req, res) => {
+  try {
+    const list = await ollama.list();
+    const models = list.models?.map((m) => m.name) ?? [];
+    const hasModel = models.some((name) => name === OLLAMA_MODEL || name.startsWith(OLLAMA_MODEL.split(':')[0]));
+
+    const payload = {
+      ok: true,
+      host: process.env.OLLAMA_HOST || 'http://127.0.0.1:11434',
+      model: OLLAMA_MODEL,
+      models,
+      modelAvailable: hasModel,
+      message: hasModel ? 'Ollama 연결됨, 사용 모델 있음' : `Ollama 연결됨. 사용할 모델 "${OLLAMA_MODEL}" 없음. 설치: ollama pull ${OLLAMA_MODEL}`,
+    };
+
+    if (req.query.test === 'chat' && hasModel) {
+      try {
+        const chatRes = await withTimeout(
+          ollama.chat({ model: OLLAMA_MODEL, messages: [{ role: 'user', content: '한 줄로 "테스트 성공"이라고만 답하세요.' }] }),
+          Math.min(OLLAMA_TIMEOUT_MS, 60000),
+          'Ollama(테스트)'
+        );
+        payload.chatTest = { ok: true, reply: (chatRes.message?.content ?? '').trim().slice(0, 200) };
+      } catch (chatErr) {
+        payload.chatTest = { ok: false, error: chatErr.message };
+      }
+    }
+
+    res.json(payload);
+  } catch (err) {
+    console.error('Ollama 상태 확인 실패:', err.message);
+    res.status(503).json({
+      ok: false,
+      error: err.message,
+      message: 'Ollama에 연결할 수 없습니다. Ollama가 실행 중인지 확인하세요. (curl http://localhost:11434/api/tags)',
+    });
+  }
 });
 
 app.get('/', (req, res) => {
@@ -239,19 +320,33 @@ app.post('/api/chat', async (req, res) => {
 
     // 2. Exact Match가 없으면 RAG 검색
     const sources = await searchKnowledge(trimmedQuestion);
-    
-    // ChromaDB에 데이터가 없거나 연결 실패 시
+
+    // ChromaDB에 데이터가 없거나 검색 결과 없음 → Ollama가 일반 지식으로 답변
     if (sources.length === 0) {
       addUnanswered(trimmedQuestion);
-      return res.json({
-        answer: '해당 정보는 등록되어 있지 않습니다. 인사/총무에 문의해 주세요.',
-        type: 'no_match',
-        sources: [],
-      });
+      try {
+        const answer = await getGeneralKnowledgeReplyFromOllama(trimmedQuestion);
+        return res.json({
+          answer,
+          type: 'no_match',
+          sources: [],
+          generalKnowledge: true,
+          disclaimer: GENERAL_KNOWLEDGE_DISCLAIMER,
+        });
+      } catch (ollamaErr) {
+        console.error('Ollama 오류(no_match):', ollamaErr.message);
+        return res.json({
+          answer: FALLBACK_NO_KNOWLEDGE,
+          type: 'no_match',
+          sources: [],
+          ollamaFailed: true,
+          ollamaError: ollamaErr.message,
+        });
+      }
     }
 
     const contextText = sources.map((s) => s.text).join('\n\n');
-    
+
     try {
       const answer = await getAnswerFromOllama(contextText, trimmedQuestion);
       res.json({
@@ -260,11 +355,11 @@ app.post('/api/chat', async (req, res) => {
         sources: sources.map((s) => ({ text: s.text, metadata: s.metadata })),
       });
     } catch (ollamaErr) {
-      console.error('Ollama 오류:', ollamaErr.message);
+      console.error('Ollama 오류(rag):', ollamaErr.message);
       addUnanswered(trimmedQuestion);
-      res.status(500).json({
+      res.status(503).json({
         error: '답변 생성 중 오류가 발생했습니다.',
-        detail: 'Ollama 서비스가 실행 중인지 확인해주세요.',
+        detail: ollamaErr.message || 'Ollama 서비스가 실행 중인지 확인해 주세요. GET /api/ollama-status 로 상태 확인.',
       });
     }
   } catch (err) {
