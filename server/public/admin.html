@@ -4,75 +4,258 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>코니 어드민 — 지식 베이스 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --cnx-cyan: #25e2cc;
+      --cnx-cyan-hover: #1fd4c4;
+      --cnx-dark: #0f172a;
+      --cnx-mint: #e8fffc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-500: #64748b;
+      --slate-700: #334155;
+      --red-500: #ef4444;
+      --red-600: #dc2626;
+    }
     * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; max-width: 720px; margin: 0 auto; padding: 24px; background: #f5f5f5; }
-    h1 { margin-top: 0; color: #333; }
-    h2 { font-size: 1rem; color: #555; margin-bottom: 8px; }
-    section { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-    input, textarea, button { font: inherit; }
-    input[type="text"], textarea { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 8px; }
-    textarea { min-height: 60px; resize: vertical; }
-    button { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; background: #2563eb; color: #fff; }
-    button:hover { background: #1d4ed8; }
-    button.secondary { background: #64748b; }
-    button.danger { background: #dc2626; }
-    .result { margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 6px; white-space: pre-wrap; word-break: break-all; font-size: 14px; }
-    .result.error { background: #fef2f2; color: #b91c1c; }
-    .result.success { background: #f0fdf4; color: #166534; }
-    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    ul { margin: 0; padding-left: 20px; }
-    .knowledge-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-    .knowledge-item:last-child { border-bottom: none; }
-    .knowledge-item .body { flex: 1; }
-    .knowledge-item .meta { font-size: 12px; color: #64748b; }
-    .unanswered-item { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-    .unanswered-item:last-child { border-bottom: none; }
-    .notice { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
-    .notice strong { display: block; margin-bottom: 4px; }
-    .link-chat { color: #2563eb; text-decoration: none; }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: var(--slate-100);
+      color: var(--cnx-dark);
+      -webkit-font-smoothing: antialiased;
+    }
+    .admin-header {
+      background: var(--cnx-dark);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.15);
+    }
+    .admin-header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .admin-header h1 span { color: var(--cnx-cyan); }
+    .server-status {
+      font-size: 0.875rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+    }
+    .server-status.ok { color: var(--cnx-cyan); }
+    .server-status.err { color: #fca5a5; }
+    .main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    .notice {
+      background: var(--cnx-mint);
+      border: 1px solid rgba(37,226,204,0.4);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--slate-700);
+    }
+    .notice strong { display: block; margin-bottom: 0.25rem; color: var(--cnx-dark); }
+    .link-chat {
+      color: var(--cnx-cyan);
+      font-weight: 500;
+      text-decoration: none;
+    }
     .link-chat:hover { text-decoration: underline; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .server-warning {
+      display: none;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      color: var(--red-600);
+      font-size: 0.875rem;
+    }
+    section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid var(--slate-200);
+    }
+    section h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--cnx-dark);
+      letter-spacing: -0.02em;
+    }
+    section .desc {
+      font-size: 0.8125rem;
+      color: var(--slate-500);
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--slate-700);
+      margin-bottom: 0.375rem;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 0.9375rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--cnx-cyan);
+      box-shadow: 0 0 0 3px rgba(37,226,204,0.2);
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.05s;
+    }
+    button:active { transform: scale(0.98); }
+    button.primary {
+      background: var(--cnx-cyan);
+      color: var(--cnx-dark);
+    }
+    button.primary:hover { background: var(--cnx-cyan-hover); }
+    button.secondary {
+      background: var(--slate-200);
+      color: var(--slate-700);
+    }
+    button.secondary:hover { background: #cbd5e1; }
+    button.edit-btn {
+      background: var(--cnx-cyan);
+      color: var(--cnx-dark);
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8125rem;
+    }
+    button.edit-btn:hover { background: var(--cnx-cyan-hover); }
+    button.danger {
+      background: var(--red-500);
+      color: white;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8125rem;
+    }
+    button.danger:hover { background: var(--red-600); }
+    .item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    .knowledge-item, .unanswered-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+      border-bottom: 1px solid var(--slate-200);
+      transition: background 0.15s;
+    }
+    .knowledge-item:last-child, .unanswered-item:last-child { border-bottom: none; }
+    .knowledge-item:hover, .unanswered-item:hover { background: var(--slate-100); }
+    .knowledge-item .body, .unanswered-item .body { flex: 1; min-width: 0; }
+    .knowledge-item .answer { font-weight: 500; color: var(--cnx-dark); line-height: 1.4; }
+    .knowledge-item .meta, .unanswered-item .meta {
+      font-size: 0.75rem;
+      color: var(--slate-500);
+      margin-top: 0.25rem;
+    }
+    .unanswered-item .question { color: var(--cnx-dark); }
+    .result {
+      margin-top: 1rem;
+      padding: 0.875rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .result.error { background: #fef2f2; color: var(--red-600); }
+    .result.success { background: #f0fdf4; color: #166534; }
+    .empty-state {
+      padding: 2rem;
+      text-align: center;
+      color: var(--slate-500);
+      font-size: 0.875rem;
+    }
   </style>
 </head>
 <body>
-  <div class="admin-header">
-    <h1>코니 어드민</h1>
-    <span id="serverStatus" style="font-size:14px; color:#64748b;"></span>
-  </div>
-  <p class="notice">
-    <strong>여기서 등록·수정한 지식이 챗봇(채팅)에서 바로 사용됩니다.</strong>
-    사용자 화면: <a href="http://localhost:5173" target="_blank" rel="noopener" class="link-chat">챗봇 열기 (localhost:5173)</a>
-  </p>
-  <div id="serverWarning" style="display:none; margin-bottom:16px; padding:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; color:#b91c1c; font-size:14px;"></div>
+  <header class="admin-header">
+    <h1>코니 <span>어드민</span></h1>
+    <span id="serverStatus" class="server-status"></span>
+  </header>
+  <main class="main">
+    <p class="notice">
+      <strong>등록·수정한 지식이 챗봇에서 바로 반영됩니다.</strong>
+      <a href="http://localhost:5173" target="_blank" rel="noopener" class="link-chat">챗봇 열기 (localhost:5173) →</a>
+    </p>
+    <div id="serverWarning" class="server-warning"></div>
 
   <!-- 지식 베이스 -->
   <section>
-    <h2>1. 지식 베이스 (키워드 · 답변 · 링크)</h2>
-    <p style="font-size:12px; color:#64748b; margin-bottom:8px;">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다.</p>
+    <h2>지식 베이스</h2>
+    <p class="desc">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다.</p>
     <button type="button" id="btnList" class="secondary">목록 불러오기</button>
-    <div id="listResult" class="result" style="display:none;"></div>
     <ul id="knowledgeList"></ul>
   </section>
 
-  <!-- 지식 추가 -->
-  <section>
-    <h2>2. 지식 추가</h2>
-    <input type="text" id="addKeywords" placeholder="키워드 (쉼표 구분, 예: 연차, 연차일수)" />
-    <textarea id="addAnswer" placeholder="답변 내용 (챗봇이 사용자에게 보여줄 문장)"></textarea>
-    <input type="text" id="addRefLink" placeholder="참조 링크 (선택, 예: /guide/leave)" />
-    <button type="button" id="btnAdd">추가</button>
+  <!-- 지식 추가/수정 -->
+  <section id="addEditSection">
+    <h2>지식 추가 / 수정</h2>
+    <input type="hidden" id="editId" value="" />
+    <div class="form-group">
+      <label>키워드 (쉼표 구분)</label>
+      <input type="text" id="addKeywords" placeholder="예: 연차, 연차일수, 휴가" />
+    </div>
+    <div class="form-group">
+      <label>답변 내용</label>
+      <textarea id="addAnswer" placeholder="챗봇이 사용자에게 보여줄 문장"></textarea>
+    </div>
+    <div class="form-group">
+      <label>참조 링크 (선택)</label>
+      <input type="text" id="addRefLink" placeholder="예: /guide/leave" />
+    </div>
+    <div class="row">
+      <button type="button" id="btnAdd" class="primary">추가</button>
+      <button type="button" id="btnCancelEdit" class="secondary" style="display:none;">취소</button>
+    </div>
     <div id="addResult" class="result" style="display:none;"></div>
   </section>
 
   <!-- 미답변 질문 -->
   <section>
-    <h2>3. 미답변 질문</h2>
-    <p style="font-size:12px; color:#64748b; margin-bottom:8px;">챗봇이 답하지 못한 질문이 쌓입니다. 답을 등록한 뒤 위 "지식 추가"로 넣고, 여기서는 제거하세요.</p>
-    <button type="button" id="btnUnanswered" class="secondary">미답변 목록 불러오기</button>
-    <div id="unansweredResult" class="result" style="display:none;"></div>
+    <h2>미답변 질문</h2>
+    <p class="desc">챗봇이 답하지 못한 질문이 쌓입니다. 답을 등록한 뒤 위에서 추가하고, 여기서는 제거하세요.</p>
+    <button type="button" id="btnUnanswered" class="secondary">목록 불러오기</button>
     <ul id="unansweredList"></ul>
   </section>
+  </main>
 
   <script>
     const API_BASE = window.location.origin;
@@ -90,14 +273,14 @@
         }
         const data = JSON.parse(text);
         if (data.status === 'ok') {
-          statusEl.textContent = '✓ 서버 연결됨';
-          statusEl.style.color = '#166534';
+          statusEl.textContent = '✓ 연결됨';
+          statusEl.className = 'server-status ok';
         }
       } catch (e) {
         warnEl.style.display = 'block';
         warnEl.innerHTML = '⚠️ 서버에 연결되지 않았습니다. <strong>npm start</strong>로 서버를 실행한 뒤 이 페이지를 새로고침하세요.';
         statusEl.textContent = '✗ 연결 안 됨';
-        statusEl.style.color = '#b91c1c';
+        statusEl.className = 'server-status err';
       }
     })();
 
@@ -107,39 +290,46 @@
       return JSON.parse(text);
     }
 
-    function showJsonResult(el, data, isError) {
-      el.style.display = 'block';
-      el.textContent = JSON.stringify(data, null, 2);
-      el.className = 'result ' + (isError ? 'error' : '');
-    }
-
     function showResult(el, text, isError) {
       el.style.display = 'block';
       el.textContent = text;
       el.className = 'result ' + (isError ? 'error' : 'success');
     }
 
+    let knowledgeListCache = [];
+
     document.getElementById('btnList').onclick = async () => {
-      const resultEl = document.getElementById('listResult');
       const listEl = document.getElementById('knowledgeList');
       try {
         const res = await fetch(API_BASE + '/api/knowledge');
         const data = await parseJsonRes(res);
-        showJsonResult(resultEl, data, !res.ok);
         listEl.innerHTML = '';
-        if (data.knowledge && data.knowledge.length) {
-          data.knowledge.forEach(item => {
+        if (!res.ok) {
+          listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">' + escapeHtml(data.error || data.detail || '목록을 불러오지 못했습니다.') + '</li>';
+          return;
+        }
+        knowledgeListCache = data.knowledge || [];
+        if (knowledgeListCache.length === 0) {
+          listEl.innerHTML = '<li class="empty-state">등록된 지식이 없습니다. 아래에서 추가하세요.</li>';
+        } else {
+          knowledgeListCache.forEach(item => {
             const li = document.createElement('li');
             li.className = 'knowledge-item';
-            li.innerHTML = '<div class="body"><strong>' + escapeHtml(item.answer) + '</strong><div class="meta">id: ' + escapeHtml(item.id) + ' | 키워드: ' + (item.keywords || []).map(escapeHtml).join(', ') + (item.refLink ? ' | ' + escapeHtml(item.refLink) : '') + '</div></div><button type="button" class="danger delete-btn" data-id="' + escapeHtml(item.id) + '">삭제</button>';
+            li.innerHTML = '<div class="body"><div class="answer">' + escapeHtml(item.answer) + '</div><div class="meta">키워드: ' + (item.keywords || []).map(escapeHtml).join(', ') + (item.refLink ? ' · ' + escapeHtml(item.refLink) : '') + '</div></div><div class="item-actions"><button type="button" class="edit-btn edit-knowledge-btn" data-id="' + escapeHtml(item.id) + '">수정</button><button type="button" class="danger delete-btn" data-id="' + escapeHtml(item.id) + '">삭제</button></div>';
             listEl.appendChild(li);
           });
           listEl.querySelectorAll('.delete-btn').forEach(btn => {
             btn.onclick = () => deleteKnowledge(btn.dataset.id);
           });
+          listEl.querySelectorAll('.edit-knowledge-btn').forEach(btn => {
+            btn.onclick = () => {
+              const item = knowledgeListCache.find(k => k.id === btn.dataset.id);
+              if (item) startEditKnowledge(item);
+            };
+          });
         }
       } catch (e) {
-        showResult(resultEl, '요청 실패: ' + e.message, true);
+        listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">요청 실패: ' + escapeHtml(e.message) + '</li>';
       }
     };
 
@@ -149,19 +339,45 @@
       return div.innerHTML;
     }
 
+    function startEditKnowledge(item) {
+      document.getElementById('editId').value = item.id;
+      document.getElementById('addKeywords').value = (item.keywords || []).join(', ');
+      document.getElementById('addAnswer').value = item.answer || '';
+      document.getElementById('addRefLink').value = item.refLink || '';
+      document.getElementById('btnAdd').textContent = '수정';
+      document.getElementById('btnCancelEdit').style.display = 'inline-block';
+      document.getElementById('addEditSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      document.getElementById('editId').value = '';
+      document.getElementById('addKeywords').value = '';
+      document.getElementById('addAnswer').value = '';
+      document.getElementById('addRefLink').value = '';
+      document.getElementById('btnAdd').textContent = '추가';
+      document.getElementById('btnCancelEdit').style.display = 'none';
+      document.getElementById('addResult').style.display = 'none';
+    }
+
+    document.getElementById('btnCancelEdit').onclick = cancelEdit;
+
     async function deleteKnowledge(id) {
       if (!confirm('이 지식을 삭제할까요? 챗봇에서 더 이상 사용되지 않습니다.')) return;
       try {
         const res = await fetch(API_BASE + '/api/knowledge/' + id, { method: 'DELETE' });
         const data = await parseJsonRes(res);
         alert(res.ok ? '삭제되었습니다.' : (data.error || data.detail || '삭제 실패'));
-        if (res.ok) document.getElementById('btnList').click();
+        if (res.ok) {
+          if (document.getElementById('editId').value === id) cancelEdit();
+          document.getElementById('btnList').click();
+        }
       } catch (e) {
         alert('요청 실패: ' + e.message);
       }
     }
 
     document.getElementById('btnAdd').onclick = async () => {
+      const editId = document.getElementById('editId').value.trim();
       const keywordsStr = document.getElementById('addKeywords').value.trim();
       const answer = document.getElementById('addAnswer').value.trim();
       const refLink = document.getElementById('addRefLink').value.trim();
@@ -172,18 +388,28 @@
         return;
       }
       try {
-        const res = await fetch(API_BASE + '/api/knowledge', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
-        });
+        let res;
+        if (editId) {
+          res = await fetch(API_BASE + '/api/knowledge/' + editId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
+          });
+        } else {
+          res = await fetch(API_BASE + '/api/knowledge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
+          });
+        }
         const data = await parseJsonRes(res);
-        showJsonResult(resultEl, data, !res.ok);
         if (res.ok) {
-          document.getElementById('addKeywords').value = '';
-          document.getElementById('addAnswer').value = '';
-          document.getElementById('addRefLink').value = '';
+          showResult(resultEl, (editId ? '수정' : '추가') + '되었습니다.', false);
+          cancelEdit();
           document.getElementById('btnList').click();
+          setTimeout(() => { resultEl.style.display = 'none'; }, 2000);
+        } else {
+          showResult(resultEl, data.error || data.detail || '저장에 실패했습니다.', true);
         }
       } catch (e) {
         showResult(resultEl, '요청 실패: ' + e.message, true);
@@ -191,26 +417,30 @@
     };
 
     document.getElementById('btnUnanswered').onclick = async () => {
-      const resultEl = document.getElementById('unansweredResult');
       const listEl = document.getElementById('unansweredList');
       try {
         const res = await fetch(API_BASE + '/api/unanswered');
         const data = await parseJsonRes(res);
-        showJsonResult(resultEl, data, !res.ok);
         listEl.innerHTML = '';
+        if (!res.ok) {
+          listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">' + escapeHtml(data.error || data.detail || '목록을 불러오지 못했습니다.') + '</li>';
+          return;
+        }
         if (data.unanswered && data.unanswered.length) {
           data.unanswered.forEach(item => {
             const li = document.createElement('li');
             li.className = 'unanswered-item';
-            li.innerHTML = '<span>' + escapeHtml(item.question) + '</span><span style="font-size:12px; color:#64748b;">' + (item.createdAt || '').slice(0, 19) + '</span><button type="button" class="danger remove-unanswered-btn" data-id="' + escapeHtml(item.id) + '">제거</button>';
+            li.innerHTML = '<div class="body"><div class="question">' + escapeHtml(item.question) + '</div><div class="meta">' + (item.createdAt || '').slice(0, 19) + '</div></div><div class="item-actions"><button type="button" class="danger remove-unanswered-btn" data-id="' + escapeHtml(item.id) + '">제거</button></div>';
             listEl.appendChild(li);
           });
           listEl.querySelectorAll('.remove-unanswered-btn').forEach(btn => {
             btn.onclick = () => removeUnanswered(btn.dataset.id);
           });
+        } else {
+          listEl.innerHTML = '<li class="empty-state">미답변 질문이 없습니다.</li>';
         }
       } catch (e) {
-        showResult(resultEl, '요청 실패: ' + e.message, true);
+        listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">요청 실패: ' + escapeHtml(e.message) + '</li>';
       }
     };
 
