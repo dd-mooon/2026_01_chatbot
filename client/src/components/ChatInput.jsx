@@ -2,9 +2,8 @@
  * 채팅 입력 영역
  */
 import { useState } from 'react';
-import { FAQ_CHIPS } from '../config/constants.js';
 
-export default function ChatInput({ onSendMessage, loading }) {
+export default function ChatInput({ onSendMessage, loading, faqChips = [] }) {
   const [input, setInput] = useState('');
 
   const handleSubmit = (e) => {
@@ -39,7 +38,7 @@ export default function ChatInput({ onSendMessage, loading }) {
           </button>
         </div>
         <div className="flex flex-wrap gap-2 mt-3">
-          {FAQ_CHIPS.map((q) => (
+          {faqChips.map((q) => (
             <button
               key={q}
               type="button"

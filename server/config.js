@@ -11,6 +11,8 @@ export const PORT = process.env.PORT || 3001;
 export const UPLOADS_DIR = path.join(__dirname, 'uploads');
 export const EXACT_MATCH_FILE = path.join(__dirname, 'data', 'exact-match-knowledge.json');
 export const UNANSWERED_FILE = path.join(__dirname, 'data', 'unanswered.json');
+export const FAQ_FILE = path.join(__dirname, 'data', 'faq.json');
+export const FAQ_MAX = 3;
 
 export const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3:latest';
 export const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS) || 120000;

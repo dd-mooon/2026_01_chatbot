@@ -2,9 +2,8 @@
  * 빈 화면 - 자주 묻는 질문 칩
  */
 import BotAvatar from '../BotAvatar';
-import { FAQ_CHIPS } from '../config/constants.js';
 
-export default function EmptyState({ onSendMessage }) {
+export default function EmptyState({ onSendMessage, faqChips = [] }) {
   return (
     <div className="text-center pt-12 pb-8">
       <div className="inline-block mb-6">
@@ -14,7 +13,7 @@ export default function EmptyState({ onSendMessage }) {
       <p className="text-slate-500 text-sm mb-6">사내 규정, 자리배치, 연차·회식 안내 등</p>
       <p className="text-xs text-slate-400 mb-3">자주 묻는 질문</p>
       <div className="flex flex-wrap gap-2 justify-center">
-        {FAQ_CHIPS.map((q) => (
+        {faqChips.map((q) => (
           <button
             key={q}
             type="button"

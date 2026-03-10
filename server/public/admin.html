@@ -325,6 +325,15 @@
     }
     .attachment-chip .remove:hover { background: #fef2f2; color: var(--red-600); }
     .attachment-hint { font-size: 0.75rem; color: var(--slate-500); margin-top: 0.5rem; }
+    .faq-check-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--slate-600);
+      white-space: nowrap;
+    }
+    .faq-check-wrap input { accent-color: var(--cnx-cyan); cursor: pointer; width: 1rem; height: 1rem; margin: 0; }
   </style>
 </head>
 <body>
@@ -383,9 +392,10 @@
   <!-- 지식 베이스 -->
   <section>
     <h2>지식 베이스</h2>
-    <p class="desc">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다.</p>
+    <p class="desc">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다. <strong>자주 묻는 질문</strong>에 체크한 항목(최대 3개)이 채팅 화면에 칩으로 표시됩니다.</p>
     <div class="toolbar">
       <button type="button" id="btnList" class="secondary">목록 불러오기</button>
+      <span id="faqCount" class="faq-count" style="font-size:0.8125rem;color:var(--slate-500);">자주 묻는 질문: 0/3</span>
     </div>
     <ul id="knowledgeList" class="knowledge-list"></ul>
   </section>
@@ -449,6 +459,53 @@
     }
 
     let knowledgeListCache = [];
+    let faqIdsCache = [];
+
+    async function loadFaqIds() {
+      try {
+        const res = await fetch(API_BASE + '/api/faq');
+        const data = await parseJsonRes(res);
+        faqIdsCache = data.ids || [];
+        return faqIdsCache;
+      } catch (e) {
+        faqIdsCache = [];
+        return [];
+      }
+    }
+
+    function updateFaqCount() {
+      const el = document.getElementById('faqCount');
+      if (el) el.textContent = '자주 묻는 질문: ' + faqIdsCache.length + '/3';
+    }
+
+    async function toggleFaq(id, checked) {
+      let next = [...faqIdsCache];
+      if (checked) {
+        if (next.length >= 3) {
+          alert('최대 3개까지 선택할 수 있습니다.');
+          return;
+        }
+        if (!next.includes(id)) next.push(id);
+      } else {
+        next = next.filter(x => x !== id);
+      }
+      try {
+        const res = await fetch(API_BASE + '/api/faq', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: next }),
+        });
+        const data = await parseJsonRes(res);
+        if (res.ok) {
+          faqIdsCache = next;
+          updateFaqCount();
+        } else {
+          alert(data.error || '저장 실패');
+        }
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
+      }
+    }
 
     document.getElementById('btnList').onclick = async () => {
       const listEl = document.getElementById('knowledgeList');
@@ -462,6 +519,8 @@
           return;
         }
         knowledgeListCache = data.knowledge || [];
+        faqIdsCache = await loadFaqIds();
+        updateFaqCount();
         if (knowledgeListCache.length === 0) {
           listEl.className = 'knowledge-list is-empty';
           listEl.innerHTML = '<li class="empty-state">등록된 지식이 없습니다. 위에서 추가하세요.</li>';
@@ -473,8 +532,13 @@
             const metaParts = ['키워드: ' + (item.keywords || []).map(escapeHtml).join(', ')];
             if (item.refLink) metaParts.push(escapeHtml(item.refLink));
             if (item.attachmentName) metaParts.push('📎 ' + escapeHtml(item.attachmentName));
-            li.innerHTML = '<div class="body"><div class="answer">' + escapeHtml(item.answer) + '</div><div class="meta">' + metaParts.join(' · ') + '</div></div><div class="item-actions"><button type="button" class="edit-btn edit-knowledge-btn" data-id="' + escapeHtml(item.id) + '">수정</button><button type="button" class="remove-btn delete-btn" data-id="' + escapeHtml(item.id) + '">삭제</button></div>';
+            const isFaq = faqIdsCache.includes(item.id);
+            const faqLabel = (item.keywords && item.keywords[0]) ? escapeHtml(item.keywords[0]) : '';
+            li.innerHTML = '<div class="body"><div class="answer">' + escapeHtml(item.answer) + '</div><div class="meta">' + metaParts.join(' · ') + '</div></div><div class="item-actions"><label class="faq-check-wrap" title="채팅 화면에 자주 묻는 질문 칩으로 표시 (최대 3개)"><input type="checkbox" class="faq-check" data-id="' + escapeHtml(item.id) + '" ' + (isFaq ? 'checked' : '') + ' /> FAQ</label><button type="button" class="edit-btn edit-knowledge-btn" data-id="' + escapeHtml(item.id) + '">수정</button><button type="button" class="remove-btn delete-btn" data-id="' + escapeHtml(item.id) + '">삭제</button></div>';
             listEl.appendChild(li);
+          });
+          listEl.querySelectorAll('.faq-check').forEach(cb => {
+            cb.onchange = () => toggleFaq(cb.dataset.id, cb.checked);
           });
           listEl.querySelectorAll('.delete-btn').forEach(btn => {
             btn.onclick = () => deleteKnowledge(btn.dataset.id);

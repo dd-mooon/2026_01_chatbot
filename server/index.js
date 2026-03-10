@@ -12,6 +12,8 @@ import knowledgeRouter from './routes/knowledge.js';
 import uploadRouter from './routes/upload.js';
 import unansweredRouter from './routes/unanswered.js';
 import ollamaRouter from './routes/ollama.js';
+import { loadFaqIds, saveFaqIds, getFaqChips } from './services/faq.js';
+import { FAQ_MAX } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,6 +47,30 @@ app.use('/api/ollama-status', ollamaRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/knowledge', knowledgeRouter);
 app.use('/api/unanswered', unansweredRouter);
+
+app.get('/api/faq', (req, res) => {
+  try {
+    const ids = loadFaqIds();
+    const chips = getFaqChips();
+    res.json({ ids, chips, max: FAQ_MAX });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+app.put('/api/faq', (req, res) => {
+  try {
+    const { ids } = req.body || {};
+    const arr = Array.isArray(ids) ? ids : [];
+    if (arr.length > FAQ_MAX) {
+      return res.status(400).json({ error: `최대 ${FAQ_MAX}개까지 선택 가능합니다.` });
+    }
+    saveFaqIds(arr);
+    const chips = getFaqChips();
+    res.json({ message: '저장되었습니다.', ids: arr, chips });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: '해당 API를 찾을 수 없습니다.', path: req.path });

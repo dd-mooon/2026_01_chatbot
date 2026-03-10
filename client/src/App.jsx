@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { useChat } from './hooks/useChat.js';
+import { useFaq } from './hooks/useFaq.js';
 import ChatHeader from './components/ChatHeader';
 import ChatMessage from './components/ChatMessage';
 import ChatInput from './components/ChatInput';
@@ -8,6 +9,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
   const { messages, loading, error, sendMessage } = useChat();
+  const faqChips = useFaq();
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -20,7 +22,7 @@ function App() {
 
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
-          {messages.length === 0 && <EmptyState onSendMessage={sendMessage} />}
+          {messages.length === 0 && <EmptyState onSendMessage={sendMessage} faqChips={faqChips} />}
           {messages.map((msg, i) => (
             <ChatMessage key={i} msg={msg} />
           ))}
@@ -35,7 +37,7 @@ function App() {
         </div>
       )}
 
-      <ChatInput onSendMessage={sendMessage} loading={loading} />
+      <ChatInput onSendMessage={sendMessage} loading={loading} faqChips={faqChips} />
     </div>
   );
 }
