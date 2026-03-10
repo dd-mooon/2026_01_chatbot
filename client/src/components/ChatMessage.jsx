@@ -9,7 +9,7 @@ export default function ChatMessage({ msg }) {
   const isAssistant = msg.role === 'assistant';
 
   return (
-    <div className={`flex items-end gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex items-start gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {isAssistant && <BotAvatar size={36} className="mb-1" />}
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-3.5 shadow-sm ${

@@ -5,7 +5,7 @@ import BotAvatar from '../BotAvatar';
 
 export default function LoadingSpinner() {
   return (
-    <div className="flex items-end gap-2 justify-start">
+    <div className="flex items-start gap-2 justify-start">
       <BotAvatar size={36} className="mb-1" />
       <div className="bg-white border border-slate-200/80 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
         <span className="inline-flex gap-1">
