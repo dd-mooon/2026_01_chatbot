@@ -37,6 +37,9 @@ logs/
 chroma_db/
 *.db
 
+# 서버 런타임 데이터 (사용자 질문 로그)
+server/data/unanswered.json
+
 # 빌드/배포
 dist/
 build/
