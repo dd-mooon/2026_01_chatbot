@@ -6,25 +6,31 @@
       "건전지 어디",
       "건전지 위치"
     ],
-    "answer": "건전지는 탕비실 세 번째 서랍에 있습니다.",
+    "answer": "건전지는 본관 서혜정 차장님쪽 케비넷에 있습니다.",
     "refLink": "/guide/office-supplies"
-  },
-  {
-    "id": "2",
-    "keywords": [
-      "회식",
-      "환영 회식",
-      "입사자 회식"
-    ],
-    "answer": "신규 입사자 환영 회식은 매달 마지막 주 금요일입니다.",
-    "refLink": "/guide/welcome-party"
   },
   {
     "id": "3",
     "keywords": [
+      "연차 확인",
+      "연차 결재",
+      "연차 신청",
       "연차"
     ],
-    "answer": "1년차 연차 15일입니다.",
+    "answer": "잔여 연차 확인 및 연차 신청은 시프티앱에서 휴가 탭을 통해 확인가능합니다.",
     "refLink": "/guide/leave"
+  },
+  {
+    "id": "4",
+    "keywords": [
+      "가이드",
+      "hr 가이드",
+      "사내 가이드",
+      "가이드북"
+    ],
+    "answer": "사내 가이드는 첨부파일을 다운받아 확인바랍니다.",
+    "refLink": "",
+    "attachmentUrl": "/uploads/1773101133603-_HR_Guidebook_2024.10_deck.pdf",
+    "attachmentName": "âHR Guidebook_2024.10 deck.pdf"
   }
 ]

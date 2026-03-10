@@ -63,6 +63,8 @@ function App() {
           role: 'assistant',
           content: data.answer,
           refLink: data.refLink || null,
+          attachmentUrl: data.attachmentUrl || null,
+          attachmentName: data.attachmentName || null,
           type: data.type,
           ollamaFailed: data.ollamaFailed ?? false,
           ollamaError: data.ollamaError || null,
@@ -172,15 +174,33 @@ function App() {
                 {msg.ollamaFailed && (
                   <p className="mt-2 text-[11px] text-amber-600">⚠️ Ollama 연결 실패. 기본 안내만 표시됨.</p>
                 )}
-                {msg.refLink && (
-                  <a
-                    href={msg.refLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-teal-600 hover:text-teal-700 hover:underline"
-                  >
-                    관련 링크 보기 →
-                  </a>
+                {(msg.refLink || msg.attachmentUrl) && (
+                  <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                    {msg.refLink && (
+                      <a
+                        href={msg.refLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 hover:border-teal-200 text-slate-700 hover:text-teal-800 transition-colors"
+                      >
+                        <span className="shrink-0 w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600 text-sm">→</span>
+                        <span className="flex-1 min-w-0 text-left font-medium">관련 링크 보기</span>
+                      </a>
+                    )}
+                    {msg.attachmentUrl && (
+                      <a
+                        href={msg.attachmentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={msg.attachmentName || undefined}
+                        className="inline-flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 hover:border-teal-200 text-slate-700 hover:text-teal-800 transition-colors"
+                      >
+                        <span className="shrink-0 w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center text-teal-600 text-sm">📎</span>
+                        <span className="flex-1 min-w-0 text-left font-medium truncate">{msg.attachmentName || '첨부파일'}</span>
+                        <span className="shrink-0 text-xs text-teal-600">다운로드</span>
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

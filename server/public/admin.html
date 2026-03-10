@@ -13,8 +13,10 @@
       --cnx-cyan-hover: #1fd4c4;
       --cnx-dark: #0f172a;
       --cnx-mint: #e8fffc;
+      --slate-50: #f8fafc;
       --slate-100: #f1f5f9;
       --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
       --slate-500: #64748b;
       --slate-700: #334155;
       --red-500: #ef4444;
@@ -25,77 +27,77 @@
       font-family: 'Noto Sans KR', -apple-system, sans-serif;
       margin: 0;
       min-height: 100vh;
-      background: var(--slate-100);
+      background: linear-gradient(180deg, var(--slate-100) 0%, var(--slate-50) 100%);
       color: var(--cnx-dark);
       -webkit-font-smoothing: antialiased;
     }
     .admin-header {
       background: var(--cnx-dark);
       color: white;
-      padding: 1rem 1.5rem;
+      padding: 1.25rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      box-shadow: 0 2px 8px rgba(15,23,42,0.15);
+      box-shadow: 0 4px 12px rgba(15,23,42,0.2);
     }
     .admin-header h1 {
       margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.375rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
     }
     .admin-header h1 span { color: var(--cnx-cyan); }
     .server-status {
-      font-size: 0.875rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.1);
+      font-size: 0.8125rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      font-weight: 500;
     }
     .server-status.ok { color: var(--cnx-cyan); }
     .server-status.err { color: #fca5a5; }
     .main {
-      max-width: 680px;
+      max-width: 640px;
       margin: 0 auto;
-      padding: 1.5rem;
+      padding: 2rem 1.5rem;
     }
     .notice {
-      background: var(--cnx-mint);
-      border: 1px solid rgba(37,226,204,0.4);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
       margin-bottom: 1.5rem;
       font-size: 0.875rem;
       color: var(--slate-700);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border-left: 4px solid var(--cnx-cyan);
     }
-    .notice strong { display: block; margin-bottom: 0.25rem; color: var(--cnx-dark); }
+    .notice strong { display: block; margin-bottom: 0.5rem; color: var(--cnx-dark); font-size: 0.9375rem; }
     .link-chat {
       color: var(--cnx-cyan);
-      font-weight: 500;
+      font-weight: 600;
       text-decoration: none;
     }
     .link-chat:hover { text-decoration: underline; }
     .server-warning {
       display: none;
       margin-bottom: 1rem;
-      padding: 1rem;
+      padding: 1rem 1.25rem;
       background: #fef2f2;
-      border: 1px solid #fecaca;
       border-radius: 10px;
       color: var(--red-600);
       font-size: 0.875rem;
     }
     section {
       background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1.25rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.04);
     }
     section h2 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.125rem;
+      margin: 0 0 0.25rem 0;
+      font-size: 1.0625rem;
       font-weight: 700;
       color: var(--cnx-dark);
       letter-spacing: -0.02em;
@@ -103,23 +105,25 @@
     section .desc {
       font-size: 0.8125rem;
       color: var(--slate-500);
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
     }
     .form-group {
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
+    .form-group:last-of-type { margin-bottom: 1.5rem; }
     .form-group label {
       display: block;
       font-size: 0.8125rem;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--slate-700);
-      margin-bottom: 0.375rem;
+      margin-bottom: 0.5rem;
     }
     input[type="text"], textarea {
       width: 100%;
-      padding: 0.625rem 0.875rem;
+      padding: 0.75rem 1rem;
       border: 1px solid var(--slate-200);
-      border-radius: 8px;
+      border-radius: 10px;
       font: inherit;
       font-size: 0.9375rem;
       transition: border-color 0.2s, box-shadow 0.2s;
@@ -127,19 +131,28 @@
     input[type="text"]:focus, textarea:focus {
       outline: none;
       border-color: var(--cnx-cyan);
-      box-shadow: 0 0 0 3px rgba(37,226,204,0.2);
+      box-shadow: 0 0 0 3px rgba(37,226,204,0.15);
     }
-    textarea { min-height: 80px; resize: vertical; }
+    textarea { min-height: 100px; resize: vertical; }
     .row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--slate-200);
+    }
     button {
-      padding: 0.5rem 1rem;
+      padding: 0.625rem 1.25rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font: inherit;
       font-size: 0.875rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s, transform 0.05s;
+      transition: all 0.2s;
     }
     button:active { transform: scale(0.98); }
     button.primary {
@@ -148,49 +161,84 @@
     }
     button.primary:hover { background: var(--cnx-cyan-hover); }
     button.secondary {
-      background: var(--slate-200);
+      background: var(--slate-100);
       color: var(--slate-700);
+      border: 1px solid var(--slate-200);
     }
-    button.secondary:hover { background: #cbd5e1; }
-    button.edit-btn {
+    button.secondary:hover { background: var(--slate-200); }
+    button.edit-btn, button.register-btn {
       background: var(--cnx-cyan);
       color: var(--cnx-dark);
-      padding: 0.375rem 0.75rem;
+      padding: 0.5rem 1rem;
       font-size: 0.8125rem;
+      font-weight: 600;
     }
-    button.edit-btn:hover { background: var(--cnx-cyan-hover); }
+    button.edit-btn:hover, button.register-btn:hover { background: var(--cnx-cyan-hover); }
     button.danger {
       background: var(--red-500);
       color: white;
-      padding: 0.375rem 0.75rem;
+      padding: 0.5rem 1rem;
       font-size: 0.8125rem;
+      font-weight: 600;
     }
     button.danger:hover { background: var(--red-600); }
-    .item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+    button.remove-btn {
+      background: transparent;
+      color: var(--slate-500);
+      border: 1px solid var(--slate-200);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+    }
+    button.remove-btn:hover { background: #fef2f2; color: var(--red-600); border-color: #fecaca; }
+    .item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; align-items: center; }
     ul { margin: 0; padding: 0; list-style: none; }
+    .knowledge-list, .unanswered-list {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--slate-200);
+    }
+    .knowledge-list.is-empty, .unanswered-list.is-empty { border: none; }
     .knowledge-item, .unanswered-item {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 1rem;
-      padding: 1rem;
+      padding: 1.25rem 1rem;
+      background: white;
       border-bottom: 1px solid var(--slate-200);
       transition: background 0.15s;
     }
     .knowledge-item:last-child, .unanswered-item:last-child { border-bottom: none; }
-    .knowledge-item:hover, .unanswered-item:hover { background: var(--slate-100); }
+    .knowledge-item:hover, .unanswered-item:hover { background: var(--slate-50); }
     .knowledge-item .body, .unanswered-item .body { flex: 1; min-width: 0; }
-    .knowledge-item .answer { font-weight: 500; color: var(--cnx-dark); line-height: 1.4; }
+    .knowledge-item .answer { font-weight: 500; color: var(--cnx-dark); line-height: 1.5; font-size: 0.9375rem; }
     .knowledge-item .meta, .unanswered-item .meta {
       font-size: 0.75rem;
       color: var(--slate-500);
-      margin-top: 0.25rem;
+      margin-top: 0.375rem;
     }
-    .unanswered-item .question { color: var(--cnx-dark); }
+    .unanswered-item .question { color: var(--cnx-dark); font-size: 0.9375rem; }
+    .unanswered-item input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      margin: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+      accent-color: var(--cnx-cyan);
+    }
+    .select-all-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--slate-600);
+      cursor: pointer;
+    }
+    .select-all-wrap input { accent-color: var(--cnx-cyan); }
     .result {
       margin-top: 1rem;
-      padding: 0.875rem;
-      border-radius: 8px;
+      padding: 1rem;
+      border-radius: 10px;
       font-size: 0.875rem;
       white-space: pre-wrap;
       word-break: break-all;
@@ -198,11 +246,84 @@
     .result.error { background: #fef2f2; color: var(--red-600); }
     .result.success { background: #f0fdf4; color: #166534; }
     .empty-state {
-      padding: 2rem;
+      padding: 2.5rem;
       text-align: center;
       color: var(--slate-500);
       font-size: 0.875rem;
+      background: var(--slate-50);
+      border-radius: 10px;
     }
+    /* 첨부파일 영역 */
+    .attachment-zone {
+      border: 2px dashed var(--slate-200);
+      border-radius: 12px;
+      padding: 1.25rem;
+      background: var(--slate-50);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .attachment-zone:hover { border-color: var(--cnx-cyan); background: var(--cnx-mint); }
+    .attachment-zone.has-file {
+      border-style: solid;
+      border-color: var(--cnx-cyan);
+      background: var(--cnx-mint);
+    }
+    .attachment-zone .inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .attachment-zone input[type="file"] {
+      position: absolute;
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      z-index: -1;
+    }
+    .attachment-zone .file-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .attachment-zone .file-label:hover {
+      background: var(--cnx-cyan);
+      color: var(--cnx-dark);
+      border-color: var(--cnx-cyan);
+    }
+    .attachment-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: white;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      color: var(--slate-700);
+      border: 1px solid var(--slate-200);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .attachment-chip .name { font-weight: 500; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .attachment-chip .remove {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.75rem;
+      color: var(--slate-500);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .attachment-chip .remove:hover { background: #fef2f2; color: var(--red-600); }
+    .attachment-hint { font-size: 0.75rem; color: var(--slate-500); margin-top: 0.5rem; }
   </style>
 </head>
 <body>
@@ -217,18 +338,13 @@
     </p>
     <div id="serverWarning" class="server-warning"></div>
 
-  <!-- 지식 베이스 -->
-  <section>
-    <h2>지식 베이스</h2>
-    <p class="desc">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다.</p>
-    <button type="button" id="btnList" class="secondary">목록 불러오기</button>
-    <ul id="knowledgeList"></ul>
-  </section>
-
   <!-- 지식 추가/수정 -->
   <section id="addEditSection">
     <h2>지식 추가 / 수정</h2>
     <input type="hidden" id="editId" value="" />
+    <input type="hidden" id="pendingUnansweredId" value="" />
+    <input type="hidden" id="attachmentUrl" value="" />
+    <input type="hidden" id="attachmentName" value="" />
     <div class="form-group">
       <label>키워드 (쉼표 구분)</label>
       <input type="text" id="addKeywords" placeholder="예: 연차, 연차일수, 휴가" />
@@ -241,6 +357,21 @@
       <label>참조 링크 (선택)</label>
       <input type="text" id="addRefLink" placeholder="예: /guide/leave" />
     </div>
+    <div class="form-group">
+      <label>첨부파일 (선택)</label>
+      <div id="attachmentZone" class="attachment-zone">
+        <div class="inner">
+          <input type="file" id="addAttachment" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.png,.jpg,.jpeg,.gif,.zip" />
+          <label for="addAttachment" class="file-label">📎 파일 선택</label>
+          <button type="button" id="btnUploadAttachment" class="secondary">업로드</button>
+          <div id="attachmentChip" class="attachment-chip" style="display:none;">
+            <span class="name" id="attachmentChipName"></span>
+            <button type="button" id="btnClearAttachment" class="remove" title="첨부파일 제거">✕</button>
+          </div>
+        </div>
+        <p id="attachmentStatus" class="attachment-hint"></p>
+      </div>
+    </div>
     <div class="row">
       <button type="button" id="btnAdd" class="primary">추가</button>
       <button type="button" id="btnCancelEdit" class="secondary" style="display:none;">취소</button>
@@ -248,17 +379,37 @@
     <div id="addResult" class="result" style="display:none;"></div>
   </section>
 
+  <!-- 지식 베이스 -->
+  <section>
+    <h2>지식 베이스</h2>
+    <p class="desc">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다.</p>
+    <div class="toolbar">
+      <button type="button" id="btnList" class="secondary">목록 불러오기</button>
+    </div>
+    <ul id="knowledgeList" class="knowledge-list"></ul>
+  </section>
+
   <!-- 미답변 질문 -->
   <section>
     <h2>미답변 질문</h2>
-    <p class="desc">챗봇이 답하지 못한 질문이 쌓입니다. 답을 등록한 뒤 위에서 추가하고, 여기서는 제거하세요.</p>
-    <button type="button" id="btnUnanswered" class="secondary">목록 불러오기</button>
-    <ul id="unansweredList"></ul>
+    <p class="desc">챗봇이 답하지 못한 질문이 쌓입니다. "답 등록"을 누르면 위 폼에 질문이 채워지며, 답변을 입력 후 추가하면 자동으로 미답변 목록에서 제거됩니다.</p>
+    <div class="toolbar">
+      <button type="button" id="btnUnanswered" class="secondary">목록 불러오기</button>
+      <button type="button" id="btnDeleteSelected" class="danger" style="display:none;">선택 삭제</button>
+      <button type="button" id="btnDeleteAll" class="danger" style="display:none;">전체 지우기</button>
+      <label class="select-all-wrap" id="selectAllLabel" style="display:none;">
+        <input type="checkbox" id="selectAllCheck" /> 전체 선택
+      </label>
+    </div>
+    <ul id="unansweredList" class="unanswered-list"></ul>
   </section>
   </main>
 
   <script>
-    const API_BASE = window.location.origin;
+    // 어드민은 서버(3001)에서 제공되므로 origin 사용. 5173에서 접속 시 API 서버(3001)로 요청
+    const API_BASE = (window.location.port === '5173')
+      ? 'http://localhost:3001'
+      : window.location.origin;
 
     (async function checkServer() {
       const statusEl = document.getElementById('serverStatus');
@@ -305,17 +456,23 @@
         const data = await parseJsonRes(res);
         listEl.innerHTML = '';
         if (!res.ok) {
+          listEl.className = 'knowledge-list is-empty';
           listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">' + escapeHtml(data.error || data.detail || '목록을 불러오지 못했습니다.') + '</li>';
           return;
         }
         knowledgeListCache = data.knowledge || [];
         if (knowledgeListCache.length === 0) {
-          listEl.innerHTML = '<li class="empty-state">등록된 지식이 없습니다. 아래에서 추가하세요.</li>';
+          listEl.className = 'knowledge-list is-empty';
+          listEl.innerHTML = '<li class="empty-state">등록된 지식이 없습니다. 위에서 추가하세요.</li>';
         } else {
+          listEl.className = 'knowledge-list';
           knowledgeListCache.forEach(item => {
             const li = document.createElement('li');
             li.className = 'knowledge-item';
-            li.innerHTML = '<div class="body"><div class="answer">' + escapeHtml(item.answer) + '</div><div class="meta">키워드: ' + (item.keywords || []).map(escapeHtml).join(', ') + (item.refLink ? ' · ' + escapeHtml(item.refLink) : '') + '</div></div><div class="item-actions"><button type="button" class="edit-btn edit-knowledge-btn" data-id="' + escapeHtml(item.id) + '">수정</button><button type="button" class="danger delete-btn" data-id="' + escapeHtml(item.id) + '">삭제</button></div>';
+            const metaParts = ['키워드: ' + (item.keywords || []).map(escapeHtml).join(', ')];
+            if (item.refLink) metaParts.push(escapeHtml(item.refLink));
+            if (item.attachmentName) metaParts.push('📎 ' + escapeHtml(item.attachmentName));
+            li.innerHTML = '<div class="body"><div class="answer">' + escapeHtml(item.answer) + '</div><div class="meta">' + metaParts.join(' · ') + '</div></div><div class="item-actions"><button type="button" class="edit-btn edit-knowledge-btn" data-id="' + escapeHtml(item.id) + '">수정</button><button type="button" class="remove-btn delete-btn" data-id="' + escapeHtml(item.id) + '">삭제</button></div>';
             listEl.appendChild(li);
           });
           listEl.querySelectorAll('.delete-btn').forEach(btn => {
@@ -329,6 +486,7 @@
           });
         }
       } catch (e) {
+        listEl.className = 'knowledge-list is-empty';
         listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">요청 실패: ' + escapeHtml(e.message) + '</li>';
       }
     };
@@ -344,22 +502,110 @@
       document.getElementById('addKeywords').value = (item.keywords || []).join(', ');
       document.getElementById('addAnswer').value = item.answer || '';
       document.getElementById('addRefLink').value = item.refLink || '';
+      document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
+      document.getElementById('attachmentName').value = item.attachmentName || '';
+      updateAttachmentStatus();
       document.getElementById('btnAdd').textContent = '수정';
       document.getElementById('btnCancelEdit').style.display = 'inline-block';
       document.getElementById('addEditSection').scrollIntoView({ behavior: 'smooth' });
     }
 
+    function updateAttachmentStatus() {
+      const url = document.getElementById('attachmentUrl').value;
+      const name = document.getElementById('attachmentName').value;
+      const statusEl = document.getElementById('attachmentStatus');
+      const chipEl = document.getElementById('attachmentChip');
+      const chipNameEl = document.getElementById('attachmentChipName');
+      const zoneEl = document.getElementById('attachmentZone');
+      if (url && name) {
+        chipEl.style.display = 'inline-flex';
+        chipNameEl.textContent = name;
+        chipNameEl.title = name;
+        statusEl.textContent = '채팅에 답변과 함께 첨부파일 링크가 표시됩니다.';
+        zoneEl.classList.add('has-file');
+      } else {
+        chipEl.style.display = 'none';
+        statusEl.textContent = '파일을 선택 후 업로드 버튼을 누르세요. (PDF, 문서, 이미지 등 20MB 이하)';
+        zoneEl.classList.remove('has-file');
+      }
+    }
+
     function cancelEdit() {
       document.getElementById('editId').value = '';
+      document.getElementById('pendingUnansweredId').value = '';
       document.getElementById('addKeywords').value = '';
       document.getElementById('addAnswer').value = '';
       document.getElementById('addRefLink').value = '';
+      document.getElementById('attachmentUrl').value = '';
+      document.getElementById('attachmentName').value = '';
+      document.getElementById('addAttachment').value = '';
+      updateAttachmentStatus();
       document.getElementById('btnAdd').textContent = '추가';
       document.getElementById('btnCancelEdit').style.display = 'none';
       document.getElementById('addResult').style.display = 'none';
     }
 
+    function registerAnswerFromUnanswered(item) {
+      cancelEdit();
+      document.getElementById('addKeywords').value = item.question;
+      document.getElementById('addAnswer').value = '';
+      document.getElementById('addRefLink').value = '';
+      document.getElementById('attachmentUrl').value = '';
+      document.getElementById('attachmentName').value = '';
+      updateAttachmentStatus();
+      document.getElementById('pendingUnansweredId').value = item.id;
+      document.getElementById('addEditSection').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('addAnswer').focus();
+    }
+
     document.getElementById('btnCancelEdit').onclick = cancelEdit;
+
+    document.getElementById('btnUploadAttachment').onclick = async () => {
+      const fileInput = document.getElementById('addAttachment');
+      const statusEl = document.getElementById('attachmentStatus');
+      if (!fileInput.files || !fileInput.files[0]) {
+        statusEl.textContent = '파일을 선택하세요.';
+        statusEl.style.color = 'var(--red-600)';
+        return;
+      }
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      try {
+        statusEl.textContent = '업로드 중...';
+        statusEl.style.color = 'var(--slate-500)';
+        const res = await fetch(API_BASE + '/api/upload', { method: 'POST', body: formData });
+        const data = await parseJsonRes(res);
+        if (res.ok) {
+          document.getElementById('attachmentUrl').value = data.url || '';
+          document.getElementById('attachmentName').value = data.name || '';
+          updateAttachmentStatus();
+          fileInput.value = '';
+        } else {
+          statusEl.textContent = data.error || data.detail || '업로드 실패';
+          statusEl.style.color = 'var(--red-600)';
+        }
+      } catch (e) {
+        statusEl.textContent = '요청 실패: ' + e.message;
+        statusEl.style.color = 'var(--red-600)';
+      }
+    };
+
+    document.getElementById('btnClearAttachment').onclick = () => {
+      document.getElementById('attachmentUrl').value = '';
+      document.getElementById('attachmentName').value = '';
+      document.getElementById('addAttachment').value = '';
+      updateAttachmentStatus();
+    };
+
+    document.getElementById('addAttachment').onchange = () => {
+      const fileInput = document.getElementById('addAttachment');
+      const statusEl = document.getElementById('attachmentStatus');
+      if (fileInput.files && fileInput.files[0]) {
+        statusEl.textContent = fileInput.files[0].name + ' 선택됨 · 업로드 버튼을 눌러주세요.';
+      } else {
+        updateAttachmentStatus();
+      }
+    };
 
     async function deleteKnowledge(id) {
       if (!confirm('이 지식을 삭제할까요? 챗봇에서 더 이상 사용되지 않습니다.')) return;
@@ -381,30 +627,40 @@
       const keywordsStr = document.getElementById('addKeywords').value.trim();
       const answer = document.getElementById('addAnswer').value.trim();
       const refLink = document.getElementById('addRefLink').value.trim();
+      const attachmentUrl = document.getElementById('attachmentUrl').value.trim();
+      const attachmentName = document.getElementById('attachmentName').value.trim();
       const resultEl = document.getElementById('addResult');
       const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()).filter(Boolean) : [];
       if (!keywords.length || !answer) {
         showResult(resultEl, '키워드(쉼표 구분)와 답변을 입력하세요.', true);
         return;
       }
+      const payload = { keywords, answer, refLink: refLink || '', attachmentUrl: attachmentUrl || '', attachmentName: attachmentName || '' };
       try {
         let res;
         if (editId) {
           res = await fetch(API_BASE + '/api/knowledge/' + editId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
+            body: JSON.stringify(payload),
           });
         } else {
           res = await fetch(API_BASE + '/api/knowledge', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ keywords, answer, refLink: refLink || undefined }),
+            body: JSON.stringify(payload),
           });
         }
         const data = await parseJsonRes(res);
         if (res.ok) {
-          showResult(resultEl, (editId ? '수정' : '추가') + '되었습니다.', false);
+          const pendingId = document.getElementById('pendingUnansweredId').value;
+          if (pendingId) {
+            try {
+              await fetch(API_BASE + '/api/unanswered/' + pendingId, { method: 'DELETE' });
+              document.getElementById('btnUnanswered').click();
+            } catch (e) { /* ignore */ }
+          }
+          showResult(resultEl, (editId ? '수정' : '추가') + '되었습니다.' + (pendingId ? ' 미답변 목록에서 제거되었습니다.' : ''), false);
           cancelEdit();
           document.getElementById('btnList').click();
           setTimeout(() => { resultEl.style.display = 'none'; }, 2000);
@@ -416,31 +672,105 @@
       }
     };
 
+    let unansweredListCache = [];
+
     document.getElementById('btnUnanswered').onclick = async () => {
       const listEl = document.getElementById('unansweredList');
       try {
         const res = await fetch(API_BASE + '/api/unanswered');
         const data = await parseJsonRes(res);
         listEl.innerHTML = '';
+        unansweredListCache = data.unanswered || [];
         if (!res.ok) {
+          listEl.className = 'unanswered-list is-empty';
           listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">' + escapeHtml(data.error || data.detail || '목록을 불러오지 못했습니다.') + '</li>';
           return;
         }
-        if (data.unanswered && data.unanswered.length) {
-          data.unanswered.forEach(item => {
+        if (unansweredListCache.length) {
+          listEl.className = 'unanswered-list';
+          document.getElementById('btnDeleteSelected').style.display = 'inline-block';
+          document.getElementById('btnDeleteAll').style.display = 'inline-block';
+          document.getElementById('selectAllLabel').style.display = 'flex';
+          document.getElementById('selectAllCheck').checked = false;
+          unansweredListCache.forEach(item => {
             const li = document.createElement('li');
             li.className = 'unanswered-item';
-            li.innerHTML = '<div class="body"><div class="question">' + escapeHtml(item.question) + '</div><div class="meta">' + (item.createdAt || '').slice(0, 19) + '</div></div><div class="item-actions"><button type="button" class="danger remove-unanswered-btn" data-id="' + escapeHtml(item.id) + '">제거</button></div>';
+            li.innerHTML = '<input type="checkbox" class="unanswered-check" data-id="' + escapeHtml(item.id) + '" /><div class="body"><div class="question">' + escapeHtml(item.question) + '</div><div class="meta">' + (item.createdAt || '').slice(0, 19) + '</div></div><div class="item-actions"><button type="button" class="register-btn register-answer-btn" data-id="' + escapeHtml(item.id) + '">답 등록</button><button type="button" class="remove-btn remove-unanswered-btn" data-id="' + escapeHtml(item.id) + '">제거</button></div>';
             listEl.appendChild(li);
           });
           listEl.querySelectorAll('.remove-unanswered-btn').forEach(btn => {
             btn.onclick = () => removeUnanswered(btn.dataset.id);
           });
+          listEl.querySelectorAll('.register-answer-btn').forEach(btn => {
+            btn.onclick = () => {
+              const item = unansweredListCache.find(u => u.id === btn.dataset.id);
+              if (item) registerAnswerFromUnanswered(item);
+            };
+          });
+          listEl.querySelectorAll('.unanswered-check').forEach(cb => {
+            cb.onchange = () => {
+              updateDeleteButtonsState();
+              document.getElementById('selectAllCheck').checked = document.querySelectorAll('.unanswered-check:checked').length === unansweredListCache.length;
+            };
+          });
+          document.getElementById('selectAllCheck').onchange = function() {
+            listEl.querySelectorAll('.unanswered-check').forEach(cb => { cb.checked = this.checked; });
+            updateDeleteButtonsState();
+          };
         } else {
+          document.getElementById('btnDeleteSelected').style.display = 'none';
+          document.getElementById('btnDeleteAll').style.display = 'none';
+          document.getElementById('selectAllLabel').style.display = 'none';
+          listEl.className = 'unanswered-list is-empty';
           listEl.innerHTML = '<li class="empty-state">미답변 질문이 없습니다.</li>';
         }
       } catch (e) {
+        listEl.className = 'unanswered-list is-empty';
         listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">요청 실패: ' + escapeHtml(e.message) + '</li>';
+      }
+    };
+
+    function updateDeleteButtonsState() {
+      const checked = document.querySelectorAll('.unanswered-check:checked');
+      const btn = document.getElementById('btnDeleteSelected');
+      if (btn) btn.textContent = checked.length ? '선택 삭제 (' + checked.length + ')' : '선택 삭제';
+    }
+
+    document.getElementById('btnDeleteSelected').onclick = async () => {
+      const checked = document.querySelectorAll('.unanswered-check:checked');
+      const ids = Array.from(checked).map(cb => cb.dataset.id);
+      if (!ids.length) {
+        alert('삭제할 항목을 선택하세요.');
+        return;
+      }
+      if (!confirm('선택한 ' + ids.length + '개 항목을 삭제할까요?')) return;
+      try {
+        const res = await fetch(API_BASE + '/api/unanswered/bulk', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids }),
+        });
+        const data = await parseJsonRes(res);
+        alert(res.ok ? data.message : (data.error || data.detail || '삭제 실패'));
+        if (res.ok) document.getElementById('btnUnanswered').click();
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
+      }
+    };
+
+    document.getElementById('btnDeleteAll').onclick = async () => {
+      if (!confirm('미답변 질문을 모두 삭제할까요?')) return;
+      try {
+        const res = await fetch(API_BASE + '/api/unanswered/bulk', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        const data = await parseJsonRes(res);
+        alert(res.ok ? data.message : (data.error || data.detail || '삭제 실패'));
+        if (res.ok) document.getElementById('btnUnanswered').click();
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
       }
     };
 
@@ -455,6 +785,8 @@
         alert('요청 실패: ' + e.message);
       }
     }
+
+    updateAttachmentStatus();
   </script>
 </body>
 </html>

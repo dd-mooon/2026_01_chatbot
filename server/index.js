@@ -1,6 +1,7 @@
 // index.js
 import express from 'express';
 import cors from 'cors';
+import multer from 'multer';
 import { ChromaClient } from 'chromadb';
 import { Ollama } from 'ollama';
 import fs from 'fs';
@@ -12,6 +13,21 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+/** 업로드 디렉터리 */
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => {
+    const safeName = Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/[^a-zA-Z0-9._-]/g, '_');
+    cb(null, Date.now() + '-' + safeName);
+  },
+});
+const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } }); // 20MB
 
 // Ollama 클라이언트 (OLLAMA_HOST 미설정 시 http://127.0.0.1:11434)
 const ollama = new Ollama({
@@ -38,8 +54,10 @@ const COLLECTION_NAME = 'company_knowledge';
 const RAG_TOP_K = 5;
 
 app.use(cors());
-app.use(express.json());  
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 /** Exact Match 지식 데이터 파일 경로 */
 const EXACT_MATCH_FILE = path.join(__dirname, 'data', 'exact-match-knowledge.json');
@@ -101,14 +119,14 @@ function addUnanswered(question) {
 }
 
 /** ChromaDB에 지식 문서 추가 (RAG 검색용) */
-async function addToChromaDB(id, answer, refLink = '') {
+async function addToChromaDB(id, answer, refLink = '', attachmentUrl = '', attachmentName = '') {
   try {
     const collection = await chromaClient.getOrCreateCollection({ name: COLLECTION_NAME });
     const chromaId = `knowledge_${id}`;
     await collection.add({
       ids: [chromaId],
       documents: [answer],
-      metadatas: [{ refLink, source: 'knowledge' }],
+      metadatas: [{ refLink: refLink || '', attachmentUrl: attachmentUrl || '', attachmentName: attachmentName || '', source: 'knowledge' }],
     });
     return true;
   } catch (err) {
@@ -118,14 +136,14 @@ async function addToChromaDB(id, answer, refLink = '') {
 }
 
 /** ChromaDB 지식 문서 수정 */
-async function updateInChromaDB(id, answer, refLink = '') {
+async function updateInChromaDB(id, answer, refLink = '', attachmentUrl = '', attachmentName = '') {
   try {
     const collection = await chromaClient.getOrCreateCollection({ name: COLLECTION_NAME });
     const chromaId = `knowledge_${id}`;
     await collection.update({
       ids: [chromaId],
       documents: [answer],
-      metadatas: [{ refLink, source: 'knowledge' }],
+      metadatas: [{ refLink: refLink || '', attachmentUrl: attachmentUrl || '', attachmentName: attachmentName || '', source: 'knowledge' }],
     });
     return true;
   } catch (err) {
@@ -161,6 +179,8 @@ function findExactMatch(question) {
       return {
         answer: item.answer,
         refLink: item.refLink,
+        attachmentUrl: item.attachmentUrl || '',
+        attachmentName: item.attachmentName || '',
         matchedKeyword: matchedKeyword,
         type: 'exact_match',
       };
@@ -312,6 +332,8 @@ app.post('/api/chat', async (req, res) => {
       return res.json({
         answer: exactMatch.answer,
         refLink: exactMatch.refLink,
+        attachmentUrl: exactMatch.attachmentUrl || null,
+        attachmentName: exactMatch.attachmentName || null,
         type: 'exact_match',
         matchedKeyword: exactMatch.matchedKeyword,
         sources: [],
@@ -349,9 +371,13 @@ app.post('/api/chat', async (req, res) => {
 
     try {
       const answer = await getAnswerFromOllama(contextText, trimmedQuestion);
+      const firstMeta = sources[0]?.metadata || {};
       res.json({
         answer,
         type: 'rag',
+        refLink: firstMeta.refLink || null,
+        attachmentUrl: firstMeta.attachmentUrl || null,
+        attachmentName: firstMeta.attachmentName || null,
         sources: sources.map((s) => ({ text: s.text, metadata: s.metadata })),
       });
     } catch (ollamaErr) {
@@ -384,10 +410,28 @@ app.get('/api/knowledge', (req, res) => {
   }
 });
 
-/** POST /api/knowledge — 지식 추가 (키워드, 답변, 참조 링크) */
+/** POST /api/upload — 첨부파일 업로드 (지식 추가 전 호출) */
+app.post('/api/upload', (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: '파일 크기가 20MB를 초과합니다.' });
+      }
+      console.error('POST /api/upload multer error:', err);
+      return res.status(400).json({ error: '파일 업로드에 실패했습니다.', detail: err.message });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: '파일을 선택한 뒤 업로드 버튼을 눌러주세요.' });
+    }
+    const url = '/uploads/' + req.file.filename;
+    res.json({ url, name: req.file.originalname });
+  });
+});
+
+/** POST /api/knowledge — 지식 추가 (키워드, 답변, 참조 링크, 첨부파일) */
 app.post('/api/knowledge', async (req, res) => {
   try {
-    const { keywords, answer, refLink } = req.body;
+    const { keywords, answer, refLink, attachmentUrl, attachmentName } = req.body;
     if (!keywords || !Array.isArray(keywords) || keywords.length === 0 || !answer || typeof answer !== 'string') {
       return res.status(400).json({
         error: 'keywords(배열), answer(문자열)가 필요합니다.',
@@ -395,13 +439,20 @@ app.post('/api/knowledge', async (req, res) => {
     }
 
     const id = generateNewId();
-    const item = { id, keywords, answer: answer.trim(), refLink: refLink?.trim() || '' };
+    const item = {
+      id,
+      keywords,
+      answer: answer.trim(),
+      refLink: refLink?.trim() || '',
+      attachmentUrl: attachmentUrl?.trim() || '',
+      attachmentName: attachmentName?.trim() || '',
+    };
 
     const list = loadExactMatchKnowledge();
     list.push(item);
     saveExactMatchKnowledge(list);
 
-    const chromaOk = await addToChromaDB(id, item.answer, item.refLink);
+    const chromaOk = await addToChromaDB(id, item.answer, item.refLink, item.attachmentUrl, item.attachmentName);
     if (!chromaOk) {
       console.warn('ChromaDB 추가 실패했지만 JSON에는 저장되었습니다.');
     }
@@ -431,11 +482,13 @@ app.put('/api/knowledge/:id', async (req, res) => {
       keywords: Array.isArray(keywords) ? keywords : prev.keywords,
       answer: typeof answer === 'string' ? answer.trim() : prev.answer,
       refLink: refLink !== undefined ? String(refLink).trim() : prev.refLink,
+      attachmentUrl: req.body.attachmentUrl !== undefined ? String(req.body.attachmentUrl).trim() : (prev.attachmentUrl || ''),
+      attachmentName: req.body.attachmentName !== undefined ? String(req.body.attachmentName).trim() : (prev.attachmentName || ''),
     };
     list[index] = updated;
     saveExactMatchKnowledge(list);
 
-    const chromaOk = await updateInChromaDB(id, updated.answer, updated.refLink);
+    const chromaOk = await updateInChromaDB(id, updated.answer, updated.refLink, updated.attachmentUrl, updated.attachmentName);
     if (!chromaOk) {
       console.warn('ChromaDB 수정 실패했지만 JSON에는 반영되었습니다.');
     }
@@ -482,6 +535,27 @@ app.get('/api/unanswered', (req, res) => {
   }
 });
 
+/** DELETE /api/unanswered/bulk — 미답변 항목 일괄 제거 (ids: 선택 삭제, 없으면 전체 삭제) */
+app.delete('/api/unanswered/bulk', (req, res) => {
+  try {
+    const { ids } = req.body || {};
+    const list = loadUnanswered();
+    let removed;
+    if (ids && Array.isArray(ids) && ids.length > 0) {
+      removed = list.filter((item) => ids.includes(item.id));
+      const newList = list.filter((item) => !ids.includes(item.id));
+      saveUnanswered(newList);
+    } else {
+      removed = [...list];
+      saveUnanswered([]);
+    }
+    res.json({ message: removed.length + '개 제거되었습니다.', removed: removed.length });
+  } catch (err) {
+    console.error('DELETE /api/unanswered/bulk error:', err);
+    res.status(500).json({ error: '제거에 실패했습니다.', detail: err.message });
+  }
+});
+
 /** DELETE /api/unanswered/:id — 미답변 항목 제거 (답변 등록 후 처리 완료 시) */
 app.delete('/api/unanswered/:id', (req, res) => {
   try {
@@ -498,6 +572,20 @@ app.delete('/api/unanswered/:id', (req, res) => {
     console.error('DELETE /api/unanswered error:', err);
     res.status(500).json({ error: '제거에 실패했습니다.', detail: err.message });
   }
+});
+
+/** API 요청에 대한 404 — JSON 반환 (HTML 대신) */
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: '해당 API를 찾을 수 없습니다.', path: req.path });
+});
+
+/** 전역 에러 핸들러 — JSON 반환 (HTML 에러 페이지 방지) */
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(err.status || 500).json({
+    error: err.message || '서버 오류가 발생했습니다.',
+    detail: err.stack ? undefined : err.message,
+  });
 });
 
 app.listen(PORT, () => {
