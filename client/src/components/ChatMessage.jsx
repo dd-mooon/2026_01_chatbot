@@ -34,9 +34,9 @@ export default function ChatMessage({ msg }) {
         {msg.ollamaFailed && (
           <p className="mt-2 text-[11px] text-amber-600">⚠️ Ollama 연결 실패. 기본 안내만 표시됨.</p>
         )}
-        {(msg.refLink || msg.attachmentUrl) && (
+        {((msg.refLink && msg.refLink.trim()) || msg.attachmentUrl) && (
           <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
-            {msg.refLink && (
+            {msg.refLink && msg.refLink.trim() && (
               <a
                 href={msg.refLink}
                 target="_blank"

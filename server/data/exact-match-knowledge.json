@@ -7,7 +7,9 @@
       "건전지 위치"
     ],
     "answer": "건전지는 본관 서혜정 차장님쪽 케비넷에 있습니다.",
-    "refLink": "/guide/office-supplies"
+    "refLink": "",
+    "attachmentUrl": "",
+    "attachmentName": ""
   },
   {
     "id": "3",
@@ -18,7 +20,9 @@
       "연차"
     ],
     "answer": "잔여 연차 확인 및 연차 신청은 시프티앱에서 휴가 탭을 통해 확인가능합니다.",
-    "refLink": "/guide/leave"
+    "refLink": "",
+    "attachmentUrl": "",
+    "attachmentName": ""
   },
   {
     "id": "4",
