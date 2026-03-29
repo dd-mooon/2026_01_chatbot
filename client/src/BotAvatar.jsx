@@ -3,7 +3,7 @@ export default function BotAvatar({ size = 40, className = '' }) {
   const s = size
   return (
     <div
-      className={`shrink-0 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-md ${className}`}
+      className={`shrink-0 rounded-full bg-[#6264a7] flex items-center justify-center ${className}`}
       style={{ width: s, height: s }}
       aria-hidden
     >
@@ -17,15 +17,15 @@ export default function BotAvatar({ size = 40, className = '' }) {
         {/* 머리 */}
         <circle cx="24" cy="22" r="14" fill="white" opacity="0.95" />
         {/* 눈 */}
-        <ellipse cx="18" cy="20" rx="3" ry="4" fill="#0f766e" />
-        <ellipse cx="30" cy="20" rx="3" ry="4" fill="#0f766e" />
+        <ellipse cx="18" cy="20" rx="3" ry="4" fill="#6264a7" />
+        <ellipse cx="30" cy="20" rx="3" ry="4" fill="#6264a7" />
         {/* 눈 하이라이트 */}
         <circle cx="19" cy="19" r="1" fill="white" />
         <circle cx="31" cy="19" r="1" fill="white" />
         {/* 입 (미소) */}
         <path
           d="M18 28 Q24 32 30 28"
-          stroke="#0f766e"
+          stroke="#6264a7"
           strokeWidth="2"
           strokeLinecap="round"
           fill="none"

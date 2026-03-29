@@ -17,11 +17,11 @@ function App() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f1f5f9]">
+    <div className="min-h-screen flex flex-col bg-[#f3f2f1]">
       <ChatHeader />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
+        <div className="max-w-2xl mx-auto px-4 py-4 space-y-2">
           {messages.length === 0 && <EmptyState onSendMessage={sendMessage} faqChips={faqChips} />}
           {messages.map((msg, i) => (
             <ChatMessage key={i} msg={msg} />
@@ -32,7 +32,7 @@ function App() {
       </main>
 
       {error && (
-        <div className="shrink-0 mx-4 mb-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
+        <div className="shrink-0 mx-4 mb-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm font-medium">
           {error}
         </div>
       )}

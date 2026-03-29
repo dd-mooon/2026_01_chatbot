@@ -13,7 +13,7 @@ export function useChat() {
     const text = (typeof question === 'string' ? question : '').trim();
     if (!text) return;
 
-    setMessages((prev) => [...prev, { role: 'user', content: text }]);
+    setMessages((prev) => [...prev, { role: 'user', content: text, timestamp: Date.now() }]);
     setLoading(true);
     setError(null);
 
@@ -34,7 +34,7 @@ export function useChat() {
       if (!res.ok) {
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: data.error || data.detail || '오류가 발생했습니다.', refLink: null },
+          { role: 'assistant', content: data.error || data.detail || '오류가 발생했습니다.', refLink: null, timestamp: Date.now() },
         ]);
         return;
       }
@@ -52,13 +52,14 @@ export function useChat() {
           ollamaError: data.ollamaError || null,
           generalKnowledge: data.generalKnowledge ?? false,
           disclaimer: data.disclaimer || null,
+          timestamp: Date.now(),
         },
       ]);
     } catch (err) {
       setError(err.message);
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: '서버에 연결할 수 없습니다. server 폴더에서 npm start를 실행해 주세요.', refLink: null },
+        { role: 'assistant', content: '서버에 연결할 수 없습니다. server 폴더에서 npm start를 실행해 주세요.', refLink: null, timestamp: Date.now() },
       ]);
     } finally {
       setLoading(false);

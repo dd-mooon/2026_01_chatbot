@@ -4,20 +4,22 @@
 @source "./**/*.jsx";
 @source "./**/*.tsx";
 
+/* Microsoft Teams 스타일 테마 - Fluent Design */
 :root {
-  --chat-user-bg: #2563eb;
-  --chat-bot-bg: #ffffff;
-  --chat-bot-border: #e2e8f0;
-  --accent: #0f766e;
-  --accent-hover: #0d9488;
-  --surface: #f8fafc;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
+  --teams-purple: #6264a7;
+  --teams-purple-hover: #5052a3;
+  --teams-purple-light: #e8e8f7;
+  --teams-neutral-bg: #f3f2f1;
+  --teams-surface: #faf9f8;
+  --teams-border: #edebe9;
+  --teams-text: #252423;
+  --teams-text-secondary: #605e5c;
+  --teams-text-muted: #8a8886;
 }
 
 body {
   margin: 0;
-  font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  font-family: "Segoe UI", "Noto Sans KR", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--surface);
@@ -40,5 +42,5 @@ main::-webkit-scrollbar-thumb {
   border-radius: 3px;
 }
 main::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #6264a7;
 }

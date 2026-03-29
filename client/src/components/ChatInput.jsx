@@ -17,33 +17,36 @@ export default function ChatInput({ onSendMessage, loading, faqChips = [] }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="shrink-0 bg-white border-t border-slate-200/80 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.08)]"
+      className="shrink-0 bg-[#faf9f8] border-t border-[#edebe9]"
     >
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        <div className="flex gap-2">
+      <div className="max-w-2xl mx-auto px-4 py-3">
+        <div className="flex gap-2 items-center">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="질문을 입력하세요"
-            className="flex-1 rounded-xl border border-slate-300 px-4 py-3 text-[15px] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition"
+            placeholder="새 메시지 입력"
+            className="flex-1 rounded-md border border-[#edebe9] px-3 py-2 text-[14px] placeholder:text-[#8a8886] focus:outline-none focus:ring-1 focus:ring-[#6264a7] focus:border-[#6264a7] bg-white transition"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading}
-            className="shrink-0 px-5 py-3 rounded-xl bg-teal-600 text-white font-semibold text-sm hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+            className="shrink-0 p-2 rounded-md bg-[#6264a7] text-white hover:bg-[#5052a3] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="전송"
           >
-            전송
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="rotate-[-45deg]">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
           </button>
         </div>
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex flex-wrap gap-1.5 mt-2">
           {faqChips.map((q) => (
             <button
               key={q}
               type="button"
               onClick={() => { onSendMessage(q); setInput(''); }}
-              className="px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 hover:text-slate-800 transition"
+              className="px-2.5 py-1 rounded-md bg-white border border-[#edebe9] text-[#605e5c] text-xs font-medium hover:bg-[#e8e8f7] hover:border-[#6264a7]/30 hover:text-[#6264a7] transition-colors"
             >
               {q}
             </button>
