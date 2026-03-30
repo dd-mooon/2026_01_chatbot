@@ -1,29 +1,20 @@
 /**
- * 빈 화면 - 자주 묻는 질문 칩
+ * 빈 화면 — 환영 카피 (프로필은 헤더에만 표시)
  */
-import BotAvatar from '../BotAvatar';
-
-export default function EmptyState({ onSendMessage, faqChips = [] }) {
+export default function EmptyState() {
   return (
-    <div className="text-center pt-16 pb-8">
-      <div className="inline-block mb-5">
-        <BotAvatar size={64} />
-      </div>
-      <p className="text-[#252423] font-semibold text-[15px] mb-0.5">무엇이든 물어보세요</p>
-      <p className="text-[#605e5c] text-[13px] mb-5">사내 규정, 자리배치, 연차·회식 안내 등</p>
-      <p className="text-[11px] text-[#8a8886] mb-2">자주 묻는 질문</p>
-      <div className="flex flex-wrap gap-1.5 justify-center">
-        {faqChips.map((q) => (
-          <button
-            key={q}
-            type="button"
-            onClick={() => onSendMessage(q)}
-            className="px-3 py-2 rounded-md bg-white text-[#252423] text-[13px] font-medium border border-[#edebe9] hover:border-[#6264a7]/40 hover:bg-[#e8e8f7] hover:text-[#6264a7] transition-colors"
-          >
-            {q}
-          </button>
-        ))}
-      </div>
+    <div className="flex flex-col items-center justify-center text-center px-2 pt-6 pb-10 max-w-md mx-auto">
+      <p className="text-[22px] sm:text-[24px] font-bold text-[#0f172a] leading-snug tracking-tight">
+        반가워요!
+      </p>
+      <p className="mt-2 text-[20px] sm:text-[22px] font-semibold text-[#006666] leading-snug">
+        코니가 도와드릴게요.
+      </p>
+      <p className="mt-5 text-[14px] text-[#64748b] leading-relaxed">
+        Concentrix Catalyst 사내 지식 베이스를 바탕으로
+        <br className="hidden sm:block" />
+        스마트한 업무 가이드를 제공합니다. 무엇이 궁금하신가요?
+      </p>
     </div>
   );
 }

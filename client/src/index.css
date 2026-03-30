@@ -4,17 +4,18 @@
 @source "./**/*.jsx";
 @source "./**/*.tsx";
 
-/* Microsoft Teams 스타일 테마 - Fluent Design */
+/* 코니 HR 어시스턴트 — 틸 액센트 */
 :root {
-  --teams-purple: #6264a7;
-  --teams-purple-hover: #5052a3;
-  --teams-purple-light: #e8e8f7;
-  --teams-neutral-bg: #f3f2f1;
-  --teams-surface: #faf9f8;
-  --teams-border: #edebe9;
-  --teams-text: #252423;
-  --teams-text-secondary: #605e5c;
-  --teams-text-muted: #8a8886;
+  /* Concentrix Catalyst 코리아 포인트 (kr.catalyst.concentrix.com) */
+  --catalyst-point: #25e2cc;
+  --accent-teal: #006666;
+  --accent-teal-hover: #005858;
+  --chat-bg: #eef2f6;
+  --surface: #ffffff;
+  --border-soft: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
 }
 
 body {
@@ -22,7 +23,7 @@ body {
   font-family: "Segoe UI", "Noto Sans KR", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--surface);
+  background: var(--chat-bg);
   color: var(--text-primary);
 }
 
@@ -30,7 +31,6 @@ body {
   min-height: 100vh;
 }
 
-/* 스크롤바 스타일 (선택) */
 main::-webkit-scrollbar {
   width: 6px;
 }
@@ -42,5 +42,10 @@ main::-webkit-scrollbar-thumb {
   border-radius: 3px;
 }
 main::-webkit-scrollbar-thumb:hover {
-  background: #6264a7;
+  background: #94a3b8;
+}
+
+/* 모바일 하단 안전 영역 (노치·홈 인디케이터) */
+.safe-area-pb {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
 }
