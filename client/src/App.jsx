@@ -17,11 +17,11 @@ function App() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#eef2f6]">
+    <div className="min-h-screen flex flex-col bg-[#eef2f6] min-w-0 max-w-[100vw] overflow-x-clip">
       <ChatHeader />
 
-      <main className="flex-1 min-h-0 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-4 sm:px-5 py-5 space-y-3 min-h-full">
+      <main className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-clip">
+        <div className="max-w-2xl mx-auto px-4 sm:px-5 py-5 space-y-3 min-h-full min-w-0 w-full">
           {messages.length === 0 && <EmptyState />}
           {messages.map((msg, i) => (
             <ChatMessage key={i} msg={msg} />

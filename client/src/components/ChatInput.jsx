@@ -15,8 +15,8 @@ export default function ChatInput({ onSendMessage, loading, faqChips = [] }) {
   };
 
   return (
-    <div className="shrink-0 bg-white border-t border-slate-200/90 shadow-[0_-4px_24px_-8px_rgba(15,23,42,0.06)]">
-      <div className="max-w-2xl mx-auto px-4 sm:px-5 pt-3 pb-4 safe-area-pb">
+    <div className="shrink-0 min-w-0 max-w-[100vw] overflow-x-clip bg-white border-t border-slate-200/90 shadow-[0_-4px_24px_-8px_rgba(15,23,42,0.06)]">
+      <div className="max-w-2xl mx-auto px-4 sm:px-5 pt-3 pb-4 safe-area-pb min-w-0 w-full">
         {faqChips.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {faqChips.map((q) => (
@@ -34,8 +34,8 @@ export default function ChatInput({ onSendMessage, loading, faqChips = [] }) {
             ))}
           </div>
         )}
-        <form onSubmit={handleSubmit} className="flex gap-2.5 items-end">
-          <div className="flex-1 flex items-center min-w-0 rounded-[1.25rem] border border-slate-200 bg-slate-50/50 px-4 py-2 transition-shadow focus-within:bg-white focus-within:border-[#006666]/35 focus-within:shadow-[0_0_0_3px_rgba(0,102,102,0.12)]">
+        <form onSubmit={handleSubmit} className="flex gap-2 sm:gap-2.5 items-end min-w-0 w-full">
+          <div className="flex-1 flex items-center min-w-0 rounded-[1.25rem] border border-slate-200 bg-slate-50/50 px-3 sm:px-4 py-2 transition-shadow focus-within:bg-white focus-within:border-[#006666]/35 focus-within:ring-2 focus-within:ring-[#006666]/20 focus-within:ring-inset">
             <input
               type="text"
               value={input}

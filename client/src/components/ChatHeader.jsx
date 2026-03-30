@@ -6,8 +6,8 @@ import { COMPANY_SITE } from '../config/constants.js';
 
 export default function ChatHeader() {
   return (
-    <header className="shrink-0 bg-white border-b border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-      <div className="max-w-2xl mx-auto px-4 sm:px-5">
+    <header className="shrink-0 min-w-0 max-w-[100vw] overflow-x-clip bg-white border-b border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+      <div className="max-w-2xl mx-auto px-4 sm:px-5 min-w-0 w-full">
         <div className="pt-3 pb-2">
           <a
             href={COMPANY_SITE}
@@ -16,7 +16,7 @@ export default function ChatHeader() {
             className="inline-flex items-center gap-2 text-[#0f172a] hover:text-[#006666] transition-colors"
             aria-label="콘센트릭스 Catalyst 코리아"
           >
-            <img alt="Concentrix Catalyst" className="h-6 w-auto" src="/logo.svg" />
+            <img alt="Concentrix Catalyst" className="h-6 w-auto max-w-[min(100%,200px)] object-contain object-left" src="/logo.svg" />
           </a>
         </div>
 

@@ -12,17 +12,23 @@ export default function ChatMessage({ msg }) {
   const metaTime = msg.timestamp ? formatMetaTime(msg.timestamp) : '';
 
   return (
-    <div className={`flex items-start gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div
+      className={`flex w-full min-w-0 items-start gap-2 sm:gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
+    >
       {isAssistant && <BotAvatar size={34} className="shrink-0 mt-0.5" />}
-      <div className={`max-w-[min(85%,20rem)] sm:max-w-[75%] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+      <div
+        className={`min-w-0 max-w-[min(20rem,calc(100%-2.75rem))] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
+      >
         <div
-          className={`rounded-2xl px-3.5 py-2.5 ${
+          className={`w-full max-w-full rounded-2xl px-3.5 py-2.5 ${
             isUser
               ? 'bg-[#006666] text-white rounded-br-md shadow-sm'
               : 'bg-white text-[#1e293b] rounded-bl-md border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
           }`}
         >
-          <p className={`whitespace-pre-wrap text-[14px] leading-[1.5] ${isUser ? 'text-white' : 'text-slate-800'}`}>
+          <p
+            className={`whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-[14px] leading-[1.5] ${isUser ? 'text-white' : 'text-slate-800'}`}
+          >
             {msg.content}
           </p>
           {msg.disclaimer && (
