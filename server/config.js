@@ -12,7 +12,14 @@ export const UPLOADS_DIR = path.join(__dirname, 'uploads');
 export const EXACT_MATCH_FILE = path.join(__dirname, 'data', 'exact-match-knowledge.json');
 export const UNANSWERED_FILE = path.join(__dirname, 'data', 'unanswered.json');
 export const FAQ_FILE = path.join(__dirname, 'data', 'faq.json');
+export const ADMIN_USERS_FILE = path.join(__dirname, 'data', 'admin-users.json');
 export const FAQ_MAX = 3;
+
+/** 첫 가입 이후 추가 회원가입 허용: 환경변수 ADMIN_SIGNUP_OPEN=true */
+export const ADMIN_SIGNUP_OPEN = process.env.ADMIN_SIGNUP_OPEN === 'true';
+
+/** 관리자 로그인 허용 이메일 도메인 */
+export const ADMIN_EMAIL_DOMAIN = 'concentrix.com';
 
 export const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3:latest';
 export const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS) || 120000;

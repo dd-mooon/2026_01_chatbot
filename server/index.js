@@ -1,8 +1,10 @@
 /**
  * 코니 API 서버 - 리팩토링 버전
+ * 정적 파일보다 API 라우트를 먼저 등록해 /api/* 가 항상 라우터로 처리됩니다.
  */
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -12,6 +14,8 @@ import knowledgeRouter from './routes/knowledge.js';
 import uploadRouter from './routes/upload.js';
 import unansweredRouter from './routes/unanswered.js';
 import ollamaRouter from './routes/ollama.js';
+import authRouter from './routes/auth.js';
+import { requireAdminAuth } from './middleware/requireAdminAuth.js';
 import { loadFaqIds, saveFaqIds, getFaqChips } from './services/faq.js';
 import { FAQ_MAX } from './config.js';
 
@@ -20,11 +24,10 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.get('/health', (req, res) => res.json({ status: 'ok', message: 'Connie server is running' }));
 
@@ -38,15 +41,18 @@ app.get('/', (req, res) => {
       knowledge: 'GET /api/knowledge (목록), POST/PUT/DELETE /api/knowledge (CRUD)',
       unanswered: 'GET /api/unanswered (미답변 목록), DELETE /api/unanswered/:id (제거)',
     },
-    admin: 'GET /admin.html (지식·미답변 관리 — 여기서 넣은 데이터가 챗봇에서 사용됨)',
+    admin: 'GET /admin.html (로그인 후 지식·미답변 관리)',
+    auth: 'POST /api/auth/register|login|logout, GET /api/auth/me',
   });
 });
 
+app.use('/api/auth', authRouter);
+
 app.use('/api/chat', chatRouter);
 app.use('/api/ollama-status', ollamaRouter);
-app.use('/api/upload', uploadRouter);
-app.use('/api/knowledge', knowledgeRouter);
-app.use('/api/unanswered', unansweredRouter);
+app.use('/api/upload', requireAdminAuth, uploadRouter);
+app.use('/api/knowledge', requireAdminAuth, knowledgeRouter);
+app.use('/api/unanswered', requireAdminAuth, unansweredRouter);
 
 app.get('/api/faq', (req, res) => {
   try {
@@ -57,7 +63,7 @@ app.get('/api/faq', (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-app.put('/api/faq', (req, res) => {
+app.put('/api/faq', requireAdminAuth, (req, res) => {
   try {
     const { ids } = req.body || {};
     const arr = Array.isArray(ids) ? ids : [];
@@ -71,6 +77,9 @@ app.put('/api/faq', (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: '해당 API를 찾을 수 없습니다.', path: req.path });

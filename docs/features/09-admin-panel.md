@@ -4,6 +4,11 @@
 
 별도 빌드 없이 **Express 정적 파일**으로 제공되는 단일 HTML 페이지에서, 지식 베이스·미답변·FAQ·첨부 업로드를 관리한다.
 
+## 로그인
+
+- 최초 접속 시 **로그인 / 회원가입** 화면이 표시된다. (`@concentrix.com` 고정)  
+- 상세: [11-admin-auth.md](11-admin-auth.md)
+
 ## 접속
 
 - 서버 기동 후: `http://localhost:3001/admin.html` (포트는 `PORT` 환경 변수)  
@@ -39,6 +44,7 @@
 
 ## 관련 API 문서
 
+- 인증: [11-admin-auth.md](11-admin-auth.md)  
 - 지식: [05-knowledge-api.md](05-knowledge-api.md)  
 - 미답변: [06-unanswered.md](06-unanswered.md)  
 - FAQ: [07-faq-chips.md](07-faq-chips.md)  

@@ -334,12 +334,129 @@
       white-space: nowrap;
     }
     .faq-check-wrap input { accent-color: var(--cnx-cyan); cursor: pointer; width: 1rem; height: 1rem; margin: 0; }
+    .auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: linear-gradient(180deg, var(--slate-100) 0%, var(--slate-50) 100%);
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(15,23,42,0.08);
+      border: 1px solid var(--slate-200);
+    }
+    .auth-card h2 { margin: 0 0 0.25rem 0; font-size: 1.25rem; color: var(--cnx-dark); }
+    .auth-card .sub { font-size: 0.8125rem; color: var(--slate-500); margin-bottom: 1.25rem; }
+    .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .auth-tabs button {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--slate-200);
+      background: var(--slate-50);
+      color: var(--slate-600);
+      font-weight: 600;
+      text-align: center;
+    }
+    .auth-tabs button.active { background: var(--cnx-cyan); color: var(--cnx-dark); border-color: var(--cnx-cyan); }
+    .auth-card input[type="password"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      font: inherit;
+      font-size: 0.9375rem;
+      margin-top: 0.35rem;
+    }
+    .auth-card input[type="password"]:focus {
+      outline: none;
+      border-color: var(--cnx-cyan);
+      box-shadow: 0 0 0 3px rgba(37,226,204,0.15);
+    }
+    .auth-msg { font-size: 0.8125rem; margin-top: 1rem; min-height: 1.25rem; color: var(--red-600); }
+    .auth-msg.ok { color: var(--slate-700); }
+    .email-row {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .email-row input.email-local {
+      flex: 1;
+      min-width: 140px;
+      width: auto;
+      margin-top: 0.35rem;
+    }
+    .email-suffix {
+      font-size: 0.9375rem;
+      color: var(--slate-700);
+      font-weight: 600;
+      white-space: nowrap;
+      margin-top: 0.35rem;
+    }
+    .admin-header .header-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .admin-email { font-size: 0.8125rem; color: rgba(255,255,255,0.85); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #btnLogout { padding: 0.4rem 0.75rem; font-size: 0.75rem; background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25); }
+    #btnLogout:hover { background: rgba(255,255,255,0.2); }
   </style>
 </head>
 <body>
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <h2>코니 어드민</h2>
+      <p class="sub">지식 베이스 · 미답변 관리 (로그인 필요)</p>
+      <div class="auth-tabs">
+        <button type="button" id="tabLogin" class="active">로그인</button>
+        <button type="button" id="tabRegister">회원가입</button>
+      </div>
+      <div id="panelLogin">
+        <div class="form-group">
+          <label>이메일</label>
+          <div class="email-row">
+            <input type="text" id="loginEmailLocal" class="email-local" placeholder="hong.gildong" autocomplete="username" />
+            <span class="email-suffix">@concentrix.com</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>비밀번호</label>
+          <input type="password" id="loginPassword" placeholder="8자 이상" autocomplete="current-password" />
+        </div>
+        <button type="button" id="btnLogin" class="primary" style="width:100%;margin-top:0.5rem;">로그인</button>
+      </div>
+      <div id="panelRegister" style="display:none;">
+        <div class="form-group">
+          <label>이메일</label>
+          <div class="email-row">
+            <input type="text" id="regEmailLocal" class="email-local" placeholder="hong.gildong" autocomplete="email" />
+            <span class="email-suffix">@concentrix.com</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>비밀번호 (8자 이상)</label>
+          <input type="password" id="regPassword" placeholder="비밀번호" autocomplete="new-password" />
+        </div>
+        <p class="desc" style="margin:0 0 1rem;font-size:0.75rem;">첫 계정은 누구나 가입 가능합니다. 이후 추가 가입은 서버에 <code>ADMIN_SIGNUP_OPEN=true</code> 설정이 필요합니다.</p>
+        <button type="button" id="btnRegister" class="primary" style="width:100%;margin-top:0.5rem;">회원가입</button>
+      </div>
+      <p id="authMessage" class="auth-msg"></p>
+    </div>
+  </div>
+
+  <div id="adminRoot" style="display:none;">
   <header class="admin-header">
     <h1>코니 <span>어드민</span></h1>
-    <span id="serverStatus" class="server-status"></span>
+    <div class="header-right">
+      <span id="adminUserEmail" class="admin-email"></span>
+      <button type="button" id="btnLogout">로그아웃</button>
+      <span id="serverStatus" class="server-status"></span>
+    </div>
   </header>
   <main class="main">
     <p class="notice">
@@ -415,12 +532,136 @@
     <ul id="unansweredList" class="unanswered-list"></ul>
   </section>
   </main>
+  </div>
 
   <script>
     // 어드민은 서버(3001)에서 제공되므로 origin 사용. 5173에서 접속 시 API 서버(3001)로 요청
     const API_BASE = (window.location.port === '5173')
       ? 'http://localhost:3001'
       : window.location.origin;
+
+    function fetchApi(url, options = {}) {
+      return fetch(url, { ...options, credentials: 'include' });
+    }
+
+    /** 입력(앞부분 또는 전체) → user@concentrix.com */
+    function buildConcentrixEmail(raw) {
+      if (typeof raw !== 'string') return '';
+      var s = raw.trim().toLowerCase();
+      if (s.endsWith('@concentrix.com')) {
+        s = s.slice(0, -'@concentrix.com'.length);
+      }
+      if (s.indexOf('@') !== -1) return '';
+      if (!s) return '';
+      return s + '@concentrix.com';
+    }
+
+    (async function initAuth() {
+      const authScreen = document.getElementById('authScreen');
+      const adminRoot = document.getElementById('adminRoot');
+      const emailEl = document.getElementById('adminUserEmail');
+      try {
+        const me = await fetchApi(API_BASE + '/api/auth/me');
+        if (me.ok) {
+          const data = await me.json();
+          authScreen.style.display = 'none';
+          adminRoot.style.display = 'block';
+          if (emailEl) emailEl.textContent = data.user && data.user.email ? data.user.email : '';
+        } else {
+          authScreen.style.display = 'flex';
+          adminRoot.style.display = 'none';
+        }
+      } catch (e) {
+        authScreen.style.display = 'flex';
+        adminRoot.style.display = 'none';
+      }
+    })();
+
+    document.getElementById('tabLogin').onclick = function () {
+      document.getElementById('tabLogin').classList.add('active');
+      document.getElementById('tabRegister').classList.remove('active');
+      document.getElementById('panelLogin').style.display = 'block';
+      document.getElementById('panelRegister').style.display = 'none';
+      document.getElementById('authMessage').textContent = '';
+    };
+    document.getElementById('tabRegister').onclick = function () {
+      document.getElementById('tabRegister').classList.add('active');
+      document.getElementById('tabLogin').classList.remove('active');
+      document.getElementById('panelRegister').style.display = 'block';
+      document.getElementById('panelLogin').style.display = 'none';
+      document.getElementById('authMessage').textContent = '';
+    };
+
+    function setAuthMsg(text, ok) {
+      const el = document.getElementById('authMessage');
+      el.textContent = text || '';
+      el.className = 'auth-msg' + (ok ? ' ok' : '');
+    }
+
+    document.getElementById('btnLogin').onclick = async function () {
+      const email = buildConcentrixEmail(document.getElementById('loginEmailLocal').value);
+      const password = document.getElementById('loginPassword').value;
+      setAuthMsg('');
+      if (!email) {
+        setAuthMsg('아이디(이메일 @ 앞부분)를 입력하세요. (@concentrix.com 고정)');
+        return;
+      }
+      try {
+        const res = await fetchApi(API_BASE + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await parseJsonRes(res);
+        if (res.ok) {
+          document.getElementById('authScreen').style.display = 'none';
+          document.getElementById('adminRoot').style.display = 'block';
+          if (document.getElementById('adminUserEmail')) document.getElementById('adminUserEmail').textContent = data.user && data.user.email ? data.user.email : '';
+          document.getElementById('loginPassword').value = '';
+        } else {
+          setAuthMsg(data.error || '로그인 실패');
+        }
+      } catch (e) {
+        setAuthMsg('요청 실패: ' + e.message);
+      }
+    };
+
+    document.getElementById('btnRegister').onclick = async function () {
+      const email = buildConcentrixEmail(document.getElementById('regEmailLocal').value);
+      const password = document.getElementById('regPassword').value;
+      setAuthMsg('');
+      if (!email) {
+        setAuthMsg('아이디(이메일 @ 앞부분)를 입력하세요. (@concentrix.com 고정)');
+        return;
+      }
+      try {
+        const res = await fetchApi(API_BASE + '/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await parseJsonRes(res);
+        if (res.ok) {
+          document.getElementById('authScreen').style.display = 'none';
+          document.getElementById('adminRoot').style.display = 'block';
+          if (document.getElementById('adminUserEmail')) document.getElementById('adminUserEmail').textContent = data.user && data.user.email ? data.user.email : '';
+        } else {
+          setAuthMsg(data.error || data.hint || '가입 실패');
+        }
+      } catch (e) {
+        setAuthMsg('요청 실패: ' + e.message);
+      }
+    };
+
+    document.getElementById('btnLogout').onclick = async function () {
+      try {
+        await fetchApi(API_BASE + '/api/auth/logout', { method: 'POST' });
+      } catch (e) { /* ignore */ }
+      document.getElementById('adminRoot').style.display = 'none';
+      document.getElementById('authScreen').style.display = 'flex';
+      if (document.getElementById('adminUserEmail')) document.getElementById('adminUserEmail').textContent = '';
+      setAuthMsg('');
+    };
 
     (async function checkServer() {
       const statusEl = document.getElementById('serverStatus');
@@ -463,7 +704,7 @@
 
     async function loadFaqIds() {
       try {
-        const res = await fetch(API_BASE + '/api/faq');
+        const res = await fetchApi(API_BASE + '/api/faq');
         const data = await parseJsonRes(res);
         faqIdsCache = data.ids || [];
         return faqIdsCache;
@@ -490,7 +731,7 @@
         next = next.filter(x => x !== id);
       }
       try {
-        const res = await fetch(API_BASE + '/api/faq', {
+        const res = await fetchApi(API_BASE + '/api/faq', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ids: next }),
@@ -510,7 +751,7 @@
     document.getElementById('btnList').onclick = async () => {
       const listEl = document.getElementById('knowledgeList');
       try {
-        const res = await fetch(API_BASE + '/api/knowledge');
+        const res = await fetchApi(API_BASE + '/api/knowledge');
         const data = await parseJsonRes(res);
         listEl.innerHTML = '';
         if (!res.ok) {
@@ -638,7 +879,7 @@
       try {
         statusEl.textContent = '업로드 중...';
         statusEl.style.color = 'var(--slate-500)';
-        const res = await fetch(API_BASE + '/api/upload', { method: 'POST', body: formData });
+        const res = await fetchApi(API_BASE + '/api/upload', { method: 'POST', body: formData });
         const data = await parseJsonRes(res);
         if (res.ok) {
           document.getElementById('attachmentUrl').value = data.url || '';
@@ -675,7 +916,7 @@
     async function deleteKnowledge(id) {
       if (!confirm('이 지식을 삭제할까요? 챗봇에서 더 이상 사용되지 않습니다.')) return;
       try {
-        const res = await fetch(API_BASE + '/api/knowledge/' + id, { method: 'DELETE' });
+        const res = await fetchApi(API_BASE + '/api/knowledge/' + id, { method: 'DELETE' });
         const data = await parseJsonRes(res);
         alert(res.ok ? '삭제되었습니다.' : (data.error || data.detail || '삭제 실패'));
         if (res.ok) {
@@ -704,13 +945,13 @@
       try {
         let res;
         if (editId) {
-          res = await fetch(API_BASE + '/api/knowledge/' + editId, {
+          res = await fetchApi(API_BASE + '/api/knowledge/' + editId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
         } else {
-          res = await fetch(API_BASE + '/api/knowledge', {
+          res = await fetchApi(API_BASE + '/api/knowledge', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -721,7 +962,7 @@
           const pendingId = document.getElementById('pendingUnansweredId').value;
           if (pendingId) {
             try {
-              await fetch(API_BASE + '/api/unanswered/' + pendingId, { method: 'DELETE' });
+              await fetchApi(API_BASE + '/api/unanswered/' + pendingId, { method: 'DELETE' });
               document.getElementById('btnUnanswered').click();
             } catch (e) { /* ignore */ }
           }
@@ -742,7 +983,7 @@
     document.getElementById('btnUnanswered').onclick = async () => {
       const listEl = document.getElementById('unansweredList');
       try {
-        const res = await fetch(API_BASE + '/api/unanswered');
+        const res = await fetchApi(API_BASE + '/api/unanswered');
         const data = await parseJsonRes(res);
         listEl.innerHTML = '';
         unansweredListCache = data.unanswered || [];
@@ -810,7 +1051,7 @@
       }
       if (!confirm('선택한 ' + ids.length + '개 항목을 삭제할까요?')) return;
       try {
-        const res = await fetch(API_BASE + '/api/unanswered/bulk', {
+        const res = await fetchApi(API_BASE + '/api/unanswered/bulk', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ids }),
@@ -826,7 +1067,7 @@
     document.getElementById('btnDeleteAll').onclick = async () => {
       if (!confirm('미답변 질문을 모두 삭제할까요?')) return;
       try {
-        const res = await fetch(API_BASE + '/api/unanswered/bulk', {
+        const res = await fetchApi(API_BASE + '/api/unanswered/bulk', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
@@ -842,7 +1083,7 @@
     async function removeUnanswered(id) {
       if (!confirm('미답변 목록에서 제거할까요?')) return;
       try {
-        const res = await fetch(API_BASE + '/api/unanswered/' + id, { method: 'DELETE' });
+        const res = await fetchApi(API_BASE + '/api/unanswered/' + id, { method: 'DELETE' });
         const data = await parseJsonRes(res);
         alert(res.ok ? '제거되었습니다.' : (data.error || data.detail || '제거 실패'));
         if (res.ok) document.getElementById('btnUnanswered').click();

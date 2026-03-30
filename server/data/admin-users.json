@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "id": "63fa62611ae3c707dd9ec7bc",
+      "email": "jijung.moon@concentrix.com",
+      "passwordHash": "a3ad2573cbcc185b55c1a4e64abd10d2:258e0b95cca31d6d74eb8ced668d080be0d2c096b7b026bc1360e06d8ee2b6943bff5105770a90df6420df595cf961b82776016a07c6ae9565e40708335cec96",
+      "createdAt": "2026-03-30T06:41:24.228Z"
+    }
+  ]
+}
