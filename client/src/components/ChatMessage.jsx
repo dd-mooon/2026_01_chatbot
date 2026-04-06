@@ -27,7 +27,7 @@ export default function ChatMessage({ msg }) {
           }`}
         >
           <p
-            className={`whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-[14px] leading-[1.5] ${isUser ? 'text-white' : 'text-slate-800'}`}
+            className={`whitespace-pre-wrap break-words text-[14px] leading-[1.5] ${isUser ? 'text-white' : 'text-slate-800'}`}
           >
             {msg.content}
           </p>

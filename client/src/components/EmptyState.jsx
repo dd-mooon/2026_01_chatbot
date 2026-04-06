@@ -3,7 +3,7 @@
  */
 export default function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center text-center px-2 pt-6 pb-10 max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center text-center px-2 pt-6 pb-10 max-w-md mx-auto min-w-0 w-full">
       <p className="text-[22px] sm:text-[24px] font-bold text-[#0f172a] leading-snug tracking-tight">
         반가워요!
       </p>

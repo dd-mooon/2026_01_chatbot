@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
           disclaimer: GENERAL_KNOWLEDGE_DISCLAIMER,
         });
       } catch (ollamaErr) {
-        console.error('Ollama 오류(no_match):', ollamaErr.message);
+        console.error('LLM 오류(no_match):', ollamaErr.message);
         return res.json({
           answer: FALLBACK_NO_KNOWLEDGE,
           type: 'no_match',
@@ -74,11 +74,13 @@ router.post('/', async (req, res) => {
         sources: sources.map((s) => ({ text: s.text, metadata: s.metadata })),
       });
     } catch (ollamaErr) {
-      console.error('Ollama 오류(rag):', ollamaErr.message);
+      console.error('LLM 오류(rag):', ollamaErr.message);
       addUnanswered(trimmedQuestion);
       res.status(503).json({
         error: '답변 생성 중 오류가 발생했습니다.',
-        detail: ollamaErr.message || 'Ollama 서비스가 실행 중인지 확인해 주세요. GET /api/ollama-status 로 상태 확인.',
+        detail:
+          ollamaErr.message ||
+          'LLM 서비스를 확인해 주세요. GET /api/ollama-status (Groq 키 또는 Ollama 실행 여부).',
       });
     }
   } catch (err) {

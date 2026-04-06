@@ -2,6 +2,7 @@
  * 코니 API 서버 - 리팩토링 버전
  * 정적 파일보다 API 라우트를 먼저 등록해 /api/* 가 항상 라우터로 처리됩니다.
  */
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';

@@ -32,7 +32,7 @@ function App() {
       </main>
 
       {error && (
-        <div className="shrink-0 mx-4 mb-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
+        <div className="shrink-0 mx-4 mb-2 max-w-[calc(100vw-2rem)] min-w-0 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium break-words">
           {error}
         </div>
       )}

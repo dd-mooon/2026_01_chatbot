@@ -25,6 +25,10 @@ export const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3:latest';
 export const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS) || 120000;
 export const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
 
+/** Groq OpenAI 호환 API (GROQ_API_KEY가 있으면 Ollama 대신 사용) */
+export const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+export const USE_GROQ = Boolean(process.env.GROQ_API_KEY?.trim());
+
 export const COLLECTION_NAME = 'company_knowledge';
 export const RAG_TOP_K = 5;
 
