@@ -32,5 +32,37 @@ export const USE_GROQ = Boolean(process.env.GROQ_API_KEY?.trim());
 export const COLLECTION_NAME = 'company_knowledge';
 export const RAG_TOP_K = 5;
 
+/**
+ * ChromaDB 서버 주소 (배포 시 CHROMA_URL 또는 CHROMA_HOST 등으로 지정)
+ * - CHROMA_URL 이 있으면 최우선 (예: http://chromadb:8000, https://xxx.chroma.cloud)
+ * - 없으면 CHROMA_HOST + CHROMA_PORT + CHROMA_SSL (기본 localhost:8000)
+ */
+function getChromaConnection() {
+  const raw = process.env.CHROMA_URL?.trim();
+  if (raw) {
+    try {
+      const u = new URL(raw);
+      const port = u.port ? Number(u.port) : 8000;
+      return {
+        host: u.hostname,
+        port,
+        ssl: u.protocol === 'https:',
+      };
+    } catch (e) {
+      console.warn('CHROMA_URL 파싱 실패, CHROMA_HOST 기본값 사용:', e.message);
+    }
+  }
+  return {
+    host: process.env.CHROMA_HOST || 'localhost',
+    port: Number(process.env.CHROMA_PORT) || 8000,
+    ssl: process.env.CHROMA_SSL === 'true' || process.env.CHROMA_SSL === '1',
+  };
+}
+
+export const chromaConnection = getChromaConnection();
+
+/** Chroma Cloud 등 토큰 인증이 필요할 때 */
+export const CHROMA_API_TOKEN = process.env.CHROMA_API_TOKEN?.trim() || '';
+
 export const FALLBACK_NO_KNOWLEDGE = '해당 정보는 등록되어 있지 않습니다. 인사/총무에 문의해 주세요.';
 export const GENERAL_KNOWLEDGE_DISCLAIMER = '※ 이 답변은 등록된 사내 지식이 아닌 AI의 일반 지식입니다. 정확한 정보는 인사/총무에 문의해 주세요.';

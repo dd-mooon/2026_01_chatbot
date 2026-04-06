@@ -1,7 +1,17 @@
 // ingest.js
+import 'dotenv/config';
 import { ChromaClient } from 'chromadb';
+import { chromaConnection, CHROMA_API_TOKEN } from './config.js';
 
-const client = new ChromaClient();
+const ingestClientArgs = {
+  host: chromaConnection.host,
+  port: chromaConnection.port,
+  ssl: chromaConnection.ssl,
+};
+if (CHROMA_API_TOKEN) {
+  ingestClientArgs.headers = { 'x-chroma-token': CHROMA_API_TOKEN };
+}
+const client = new ChromaClient(ingestClientArgs);
 
 async function setup() {
   // 1. 'company_knowledge'라는 이름의 저장소(Collection) 만들기

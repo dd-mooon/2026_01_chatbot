@@ -1,10 +1,21 @@
 /**
  * ChromaDB 벡터 DB 연동
+ * 연결: CHROMA_URL 또는 CHROMA_HOST / CHROMA_PORT / CHROMA_SSL (config.js)
  */
 import { ChromaClient } from 'chromadb';
-import { COLLECTION_NAME, RAG_TOP_K } from '../config.js';
+import { COLLECTION_NAME, RAG_TOP_K, chromaConnection, CHROMA_API_TOKEN } from '../config.js';
 
-const chromaClient = new ChromaClient();
+const chromaClientArgs = {
+  host: chromaConnection.host,
+  port: chromaConnection.port,
+  ssl: chromaConnection.ssl,
+};
+
+if (CHROMA_API_TOKEN) {
+  chromaClientArgs.headers = { 'x-chroma-token': CHROMA_API_TOKEN };
+}
+
+const chromaClient = new ChromaClient(chromaClientArgs);
 
 export async function addToChromaDB(id, answer, refLink = '', attachmentUrl = '', attachmentName = '') {
   try {

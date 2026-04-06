@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { PORT, UPLOADS_DIR } from './config.js';
+import { PORT, UPLOADS_DIR, chromaConnection } from './config.js';
 import chatRouter from './routes/chat.js';
 import knowledgeRouter from './routes/knowledge.js';
 import uploadRouter from './routes/upload.js';
@@ -94,17 +94,22 @@ app.use((err, req, res, next) => {
   });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Connie server running at http://localhost:${PORT}`);
-});
+const server = app.listen(PORT);
 
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`❌ 포트 ${PORT}이(가) 이미 사용 중입니다. 기존 프로세스를 종료하세요: lsof -i :${PORT}`);
+    console.error(`❌ 포트 ${PORT}이(가) 이미 사용 중입니다. 아래로 종료 후 다시 실행하세요.`);
+    console.error(`   kill $(lsof -t -i:${PORT})`);
   } else {
     console.error('서버 시작 오류:', err);
   }
   process.exit(1);
+});
+
+server.on('listening', () => {
+  const chromaUrl = `${chromaConnection.ssl ? 'https' : 'http'}://${chromaConnection.host}:${chromaConnection.port}`;
+  console.log(`🚀 Connie server running at http://localhost:${PORT}`);
+  console.log(`📦 ChromaDB → ${chromaUrl}`);
 });
 
 process.stdin.resume();

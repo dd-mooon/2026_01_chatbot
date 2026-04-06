@@ -1,0 +1,18 @@
+# 로컬·동일 Docker 네트워크에서 ChromaDB만 띄울 때 사용
+# 사용법: 프로젝트 루트에서  docker compose up -d
+# Node는 호스트에서 실행 시 CHROMA_URL=http://localhost:8000
+# Node를 compose 안에서 실행 시 CHROMA_URL=http://chromadb:8000 (서비스 이름)
+
+services:
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: connie-chromadb
+    ports:
+      - '8000:8000'
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=False
+
+volumes:
+  chroma_data:
