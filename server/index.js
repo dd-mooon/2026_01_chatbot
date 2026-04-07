@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { PORT, UPLOADS_DIR, chromaConnection } from './config.js';
+import { PORT, UPLOADS_DIR, chromaConnection, CORS_ALLOWED_ORIGINS } from './config.js';
 import chatRouter from './routes/chat.js';
 import knowledgeRouter from './routes/knowledge.js';
 import uploadRouter from './routes/upload.js';
@@ -25,7 +25,23 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (CORS_ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      console.warn('CORS 차단:', origin);
+      callback(null, false);
+    },
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

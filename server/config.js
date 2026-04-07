@@ -21,6 +21,31 @@ export const ADMIN_SIGNUP_OPEN = process.env.ADMIN_SIGNUP_OPEN === 'true';
 /** 관리자 로그인 허용 이메일 도메인 */
 export const ADMIN_EMAIL_DOMAIN = 'concentrix.com';
 
+/**
+ * CORS 허용 Origin
+ * - ALLOWED_ORIGINS: 쉼표로 여러 개 (Render·로컬 .env)
+ * - production: Vercel 프론트 기본값 병합
+ * - 그 외: Vite dev/preview 로컬 기본값 병합
+ */
+function buildCorsAllowedOrigins() {
+  const fromEnv = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const devDefaults = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:4173',
+    'http://127.0.0.1:4173',
+  ];
+  const prodDefaults = ['https://2026-01-chatbot.vercel.app'];
+  const isProd = process.env.NODE_ENV === 'production';
+  const defaults = isProd ? prodDefaults : devDefaults;
+  return [...new Set([...fromEnv, ...defaults])];
+}
+
+export const CORS_ALLOWED_ORIGINS = buildCorsAllowedOrigins();
+
 export const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3:latest';
 export const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS) || 120000;
 export const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
