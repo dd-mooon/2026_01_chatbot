@@ -1,6 +1,7 @@
-/** 봇 아바타 — 코니 캐릭터 이미지 */
-export default function BotAvatar({ size = 40, className = '' }) {
+/** 봇 아바타 — 코니 캐릭터 이미지 (responding: 답변·로딩 중 표정) */
+export default function BotAvatar({ size = 40, className = '', responding = false }) {
   const s = size;
+  const src = responding ? '/assets/connie-active.png' : '/assets/connie.png';
   return (
     <div
       className={`shrink-0 rounded-full overflow-hidden bg-white shadow-sm ${className}`}
@@ -8,7 +9,7 @@ export default function BotAvatar({ size = 40, className = '' }) {
       aria-hidden
     >
       <img
-        src="/assets/connie.png"
+        src={src}
         alt=""
         className="w-full h-full object-cover object-center scale-[1.02]"
         draggable={false}

@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>코니 어드민 — 지식 베이스 관리</title>
+  <title>코니 관리자화면 — 지식 베이스 관리</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --cnx-cyan: #25e2cc;
+      --cnx-cyan-dim: rgba(37, 226, 204, 0.12);
       --cnx-cyan-hover: #1fd4c4;
       --cnx-dark: #0f172a;
       --cnx-mint: #e8fffc;
@@ -18,95 +19,192 @@
       --slate-200: #e2e8f0;
       --slate-400: #94a3b8;
       --slate-500: #64748b;
+      --slate-600: #475569;
       --slate-700: #334155;
       --red-500: #ef4444;
       --red-600: #dc2626;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+      --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.06);
+      --shadow-float: 0 12px 40px rgba(15, 23, 42, 0.12);
     }
     * { box-sizing: border-box; }
     body {
       font-family: 'Noto Sans KR', -apple-system, sans-serif;
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(180deg, var(--slate-100) 0%, var(--slate-50) 100%);
+      background:
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(37, 226, 204, 0.14) 0%, transparent 55%),
+        linear-gradient(180deg, #eef2f7 0%, var(--slate-50) 45%, #f8fafc 100%);
       color: var(--cnx-dark);
       -webkit-font-smoothing: antialiased;
     }
     .admin-header {
-      background: var(--cnx-dark);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       color: white;
-      padding: 1.25rem 2rem;
+      padding: 0;
+      border-bottom: 1px solid rgba(37, 226, 204, 0.15);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    }
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 12px rgba(15,23,42,0.2);
+      gap: 1rem;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .header-logo {
+      height: 40px;
+      width: 40px;
+      object-fit: contain;
+      object-position: center;
+      flex-shrink: 0;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
     .admin-header h1 {
       margin: 0;
-      font-size: 1.375rem;
+      font-size: 1.125rem;
       font-weight: 700;
       letter-spacing: -0.03em;
+      line-height: 1.2;
     }
     .admin-header h1 span { color: var(--cnx-cyan); }
     .server-status {
-      font-size: 0.8125rem;
-      padding: 0.375rem 0.75rem;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.08);
-      font-weight: 500;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-weight: 600;
+      letter-spacing: 0.02em;
     }
-    .server-status.ok { color: var(--cnx-cyan); }
-    .server-status.err { color: #fca5a5; }
+    .server-status.ok {
+      color: var(--cnx-cyan);
+      border-color: rgba(37, 226, 204, 0.25);
+      background: rgba(37, 226, 204, 0.1);
+    }
+    .server-status.err { color: #fca5a5; border-color: rgba(252, 165, 165, 0.25); }
     .main {
-      max-width: 640px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 2rem 1.5rem;
+      padding: 1.75rem 1.25rem 3rem;
     }
+    @media (min-width: 640px) {
+      .main { padding: 2rem 1.75rem 3.5rem; }
+    }
+    .main-intro { margin-bottom: 1.5rem; }
     .notice {
       background: white;
-      border-radius: 12px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.5rem;
+      border-radius: var(--radius-xl);
+      padding: 1.25rem 1.35rem 1.35rem;
+      margin-bottom: 0;
       font-size: 0.875rem;
       color: var(--slate-700);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      border-left: 4px solid var(--cnx-cyan);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--slate-200);
+      position: relative;
+      overflow: hidden;
+    }
+    .notice::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--cnx-cyan), #0d9488);
+      border-radius: 4px 0 0 4px;
     }
     .notice strong { display: block; margin-bottom: 0.5rem; color: var(--cnx-dark); font-size: 0.9375rem; }
     .link-chat {
-      color: var(--cnx-cyan);
+      color: #0d9488;
       font-weight: 600;
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.35rem;
+      transition: color 0.15s, gap 0.15s;
     }
-    .link-chat:hover { text-decoration: underline; }
+    .link-chat:hover { color: var(--cnx-cyan-hover); gap: 0.4rem; }
     .server-warning {
       display: none;
-      margin-bottom: 1rem;
+      margin-top: 1rem;
       padding: 1rem 1.25rem;
-      background: #fef2f2;
-      border-radius: 10px;
+      background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+      border-radius: var(--radius-lg);
       color: var(--red-600);
       font-size: 0.875rem;
+      border: 1px solid #fecaca;
+      box-shadow: var(--shadow-card);
     }
-    section {
+    .main-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 960px) {
+      .main-grid { grid-template-columns: 1fr 1fr; align-items: start; }
+    }
+    section.admin-section,
+    section#addEditSection {
       background: white;
-      border-radius: 14px;
-      padding: 1.75rem;
+      border-radius: var(--radius-xl);
+      padding: 1.5rem 1.35rem;
       margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border: 1px solid rgba(0,0,0,0.04);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--slate-200);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
     }
-    section h2 {
-      margin: 0 0 0.25rem 0;
-      font-size: 1.0625rem;
+    @media (min-width: 640px) {
+      section.admin-section,
+      section#addEditSection { padding: 1.65rem 1.75rem; }
+    }
+    section#addEditSection:hover { box-shadow: var(--shadow-card); }
+    .main-grid section.admin-section:hover {
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+      border-color: rgba(37, 226, 204, 0.2);
+    }
+    .main-grid section.admin-section { margin-bottom: 0; }
+    section.admin-section h2,
+    section#addEditSection h2 {
+      margin: 0 0 0.35rem 0;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--cnx-dark);
       letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    section .desc {
+    section.admin-section h2::before,
+    section#addEditSection h2::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cnx-cyan);
+      box-shadow: 0 0 0 3px var(--cnx-cyan-dim);
+      flex-shrink: 0;
+    }
+    section.admin-section .desc,
+    section#addEditSection .desc {
       font-size: 0.8125rem;
       color: var(--slate-500);
       margin-bottom: 1.25rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
     .form-group {
       margin-bottom: 1.25rem;
@@ -114,27 +212,32 @@
     .form-group:last-of-type { margin-bottom: 1.5rem; }
     .form-group label {
       display: block;
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       font-weight: 600;
-      color: var(--slate-700);
-      margin-bottom: 0.5rem;
+      color: var(--slate-600);
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
     input[type="text"], textarea {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.7rem 1rem;
       border: 1px solid var(--slate-200);
-      border-radius: 10px;
+      border-radius: 11px;
       font: inherit;
       font-size: 0.9375rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--slate-50);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     }
+    input[type="text"]:hover, textarea:hover { background: #fff; }
     input[type="text"]:focus, textarea:focus {
       outline: none;
+      background: #fff;
       border-color: var(--cnx-cyan);
-      box-shadow: 0 0 0 3px rgba(37,226,204,0.15);
+      box-shadow: 0 0 0 3px var(--cnx-cyan-dim);
     }
-    textarea { min-height: 100px; resize: vertical; }
-    .row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    textarea { min-height: 110px; resize: vertical; line-height: 1.55; }
+    .row { display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap; }
     .toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -142,74 +245,93 @@
       align-items: center;
       margin-bottom: 1rem;
       padding-bottom: 1rem;
-      border-bottom: 1px solid var(--slate-200);
+      border-bottom: 1px dashed var(--slate-200);
     }
     button {
-      padding: 0.625rem 1.25rem;
+      padding: 0.55rem 1.1rem;
       border: none;
       border-radius: 10px;
       font: inherit;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      button { transition: none; }
+      button:active { transform: none; }
     }
     button:active { transform: scale(0.98); }
     button.primary {
-      background: var(--cnx-cyan);
+      background: linear-gradient(180deg, var(--cnx-cyan) 0%, var(--cnx-cyan-hover) 100%);
       color: var(--cnx-dark);
+      box-shadow: 0 2px 8px rgba(37, 226, 204, 0.35);
     }
-    button.primary:hover { background: var(--cnx-cyan-hover); }
+    button.primary:hover {
+      background: var(--cnx-cyan-hover);
+      box-shadow: 0 4px 14px rgba(37, 226, 204, 0.4);
+    }
     button.secondary {
-      background: var(--slate-100);
+      background: #fff;
       color: var(--slate-700);
       border: 1px solid var(--slate-200);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
-    button.secondary:hover { background: var(--slate-200); }
+    button.secondary:hover { background: var(--slate-50); border-color: var(--slate-400); }
     button.edit-btn, button.register-btn {
-      background: var(--cnx-cyan);
+      background: linear-gradient(180deg, var(--cnx-cyan) 0%, var(--cnx-cyan-hover) 100%);
       color: var(--cnx-dark);
-      padding: 0.5rem 1rem;
-      font-size: 0.8125rem;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.75rem;
       font-weight: 600;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(37, 226, 204, 0.3);
     }
     button.edit-btn:hover, button.register-btn:hover { background: var(--cnx-cyan-hover); }
     button.danger {
       background: var(--red-500);
       color: white;
-      padding: 0.5rem 1rem;
-      font-size: 0.8125rem;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.75rem;
       font-weight: 600;
+      border-radius: 8px;
     }
     button.danger:hover { background: var(--red-600); }
     button.remove-btn {
-      background: transparent;
+      background: #fff;
       color: var(--slate-500);
       border: 1px solid var(--slate-200);
-      padding: 0.4rem 0.75rem;
-      font-size: 0.75rem;
+      padding: 0.38rem 0.7rem;
+      font-size: 0.72rem;
+      border-radius: 8px;
     }
     button.remove-btn:hover { background: #fef2f2; color: var(--red-600); border-color: #fecaca; }
-    .item-actions { display: flex; gap: 0.5rem; flex-shrink: 0; align-items: center; }
+    .item-actions { display: flex; gap: 0.45rem; flex-shrink: 0; align-items: center; flex-wrap: wrap; }
     ul { margin: 0; padding: 0; list-style: none; }
     .knowledge-list, .unanswered-list {
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--slate-200);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      border: none;
+      overflow: visible;
     }
-    .knowledge-list.is-empty, .unanswered-list.is-empty { border: none; }
+    .knowledge-list.is-empty, .unanswered-list.is-empty { gap: 0; }
     .knowledge-item, .unanswered-item {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 1rem;
-      padding: 1.25rem 1rem;
-      background: white;
-      border-bottom: 1px solid var(--slate-200);
-      transition: background 0.15s;
+      padding: 1.1rem 1.05rem;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
-    .knowledge-item:last-child, .unanswered-item:last-child { border-bottom: none; }
-    .knowledge-item:hover, .unanswered-item:hover { background: var(--slate-50); }
+    .knowledge-item:hover, .unanswered-item:hover {
+      background: #fff;
+      border-color: rgba(37, 226, 204, 0.35);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+    }
     .knowledge-item .body, .unanswered-item .body { flex: 1; min-width: 0; }
     .knowledge-item .answer { font-weight: 500; color: var(--cnx-dark); line-height: 1.5; font-size: 0.9375rem; }
     .knowledge-item .meta, .unanswered-item .meta {
@@ -235,37 +357,54 @@
       cursor: pointer;
     }
     .select-all-wrap input { accent-color: var(--cnx-cyan); }
+    .faq-count {
+      margin-left: auto;
+      font-size: 0.75rem !important;
+      font-weight: 600;
+      color: var(--slate-600) !important;
+      padding: 0.35rem 0.75rem;
+      background: var(--slate-100);
+      border-radius: 999px;
+      border: 1px solid var(--slate-200);
+    }
     .result {
       margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      border-radius: 11px;
       font-size: 0.875rem;
       white-space: pre-wrap;
       word-break: break-all;
+      border: 1px solid transparent;
     }
-    .result.error { background: #fef2f2; color: var(--red-600); }
-    .result.success { background: #f0fdf4; color: #166534; }
+    .result.error { background: #fef2f2; color: var(--red-600); border-color: #fecaca; }
+    .result.success { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
     .empty-state {
-      padding: 2.5rem;
+      padding: 2.25rem 1.5rem;
       text-align: center;
       color: var(--slate-500);
       font-size: 0.875rem;
-      background: var(--slate-50);
-      border-radius: 10px;
+      background: linear-gradient(180deg, var(--slate-50) 0%, #fff 100%);
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--slate-200);
     }
     /* 첨부파일 영역 */
     .attachment-zone {
       border: 2px dashed var(--slate-200);
-      border-radius: 12px;
-      padding: 1.25rem;
-      background: var(--slate-50);
-      transition: border-color 0.2s, background 0.2s;
+      border-radius: var(--radius-lg);
+      padding: 1.15rem 1.2rem;
+      background: linear-gradient(135deg, var(--slate-50) 0%, #fff 100%);
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     }
-    .attachment-zone:hover { border-color: var(--cnx-cyan); background: var(--cnx-mint); }
+    .attachment-zone:hover {
+      border-color: rgba(37, 226, 204, 0.5);
+      background: var(--cnx-mint);
+      box-shadow: inset 0 0 0 1px rgba(37, 226, 204, 0.08);
+    }
     .attachment-zone.has-file {
       border-style: solid;
       border-color: var(--cnx-cyan);
       background: var(--cnx-mint);
+      box-shadow: 0 0 0 3px var(--cnx-cyan-dim);
     }
     .attachment-zone .inner {
       display: flex;
@@ -322,7 +461,9 @@
       border: none;
       cursor: pointer;
       border-radius: 4px;
+      box-shadow: none;
     }
+    .attachment-chip .remove:active { transform: none; }
     .attachment-chip .remove:hover { background: #fef2f2; color: var(--red-600); }
     .attachment-hint { font-size: 0.75rem; color: var(--slate-500); margin-top: 0.5rem; }
     .faq-check-wrap {
@@ -340,44 +481,90 @@
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
-      background: linear-gradient(180deg, var(--slate-100) 0%, var(--slate-50) 100%);
+      background:
+        radial-gradient(ellipse 100% 70% at 50% 0%, rgba(37, 226, 204, 0.18) 0%, transparent 50%),
+        linear-gradient(180deg, #e8eef5 0%, var(--slate-50) 100%);
     }
     .auth-card {
       width: 100%;
-      max-width: 400px;
-      background: white;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 2rem 1.85rem 1.85rem;
+      box-shadow: var(--shadow-float);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--cnx-cyan), #0d9488, var(--cnx-cyan));
+    }
+    .auth-brand-row {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .auth-logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      object-position: center;
       border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 8px 32px rgba(15,23,42,0.08);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+    }
+    .auth-card h2 { margin: 0 0 0.35rem 0; font-size: 1.35rem; color: var(--cnx-dark); letter-spacing: -0.03em; }
+    .auth-card h2 span { color: var(--cnx-cyan); }
+    .auth-card .sub { font-size: 0.8125rem; color: var(--slate-500); margin-bottom: 1.35rem; line-height: 1.5; }
+    .auth-tabs {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 1.35rem;
+      padding: 0.3rem;
+      background: var(--slate-100);
+      border-radius: 12px;
       border: 1px solid var(--slate-200);
     }
-    .auth-card h2 { margin: 0 0 0.25rem 0; font-size: 1.25rem; color: var(--cnx-dark); }
-    .auth-card .sub { font-size: 0.8125rem; color: var(--slate-500); margin-bottom: 1.25rem; }
-    .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
     .auth-tabs button {
       flex: 1;
-      padding: 0.5rem;
-      border-radius: 8px;
-      border: 1px solid var(--slate-200);
-      background: var(--slate-50);
+      padding: 0.55rem 0.5rem;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
       color: var(--slate-600);
       font-weight: 600;
       text-align: center;
+      font-size: 0.8125rem;
+      box-shadow: none;
     }
-    .auth-tabs button.active { background: var(--cnx-cyan); color: var(--cnx-dark); border-color: var(--cnx-cyan); }
+    .auth-tabs button.active {
+      background: #fff;
+      color: var(--cnx-dark);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+    }
     .auth-card input[type="password"] {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.7rem 1rem;
       border: 1px solid var(--slate-200);
-      border-radius: 10px;
+      border-radius: 11px;
       font: inherit;
       font-size: 0.9375rem;
       margin-top: 0.35rem;
+      background: var(--slate-50);
     }
     .auth-card input[type="password"]:focus {
       outline: none;
       border-color: var(--cnx-cyan);
-      box-shadow: 0 0 0 3px rgba(37,226,204,0.15);
+      background: #fff;
+      box-shadow: 0 0 0 3px var(--cnx-cyan-dim);
     }
     .auth-msg { font-size: 0.8125rem; margin-top: 1rem; min-height: 1.25rem; color: var(--red-600); }
     .auth-msg.ok { color: var(--slate-700); }
@@ -401,17 +588,39 @@
       white-space: nowrap;
       margin-top: 0.35rem;
     }
-    .admin-header .header-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-    .admin-email { font-size: 0.8125rem; color: rgba(255,255,255,0.85); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #btnLogout { padding: 0.4rem 0.75rem; font-size: 0.75rem; background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25); }
-    #btnLogout:hover { background: rgba(255,255,255,0.2); }
+    .admin-header .header-right { display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; justify-content: flex-end; }
+    .admin-email {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.88);
+      max-width: min(200px, 38vw);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0.3rem 0.65rem;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    #btnLogout {
+      padding: 0.4rem 0.85rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+    }
+    #btnLogout:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.35); }
   </style>
 </head>
 <body>
   <div id="authScreen" class="auth-screen">
     <div class="auth-card">
-      <h2>코니 어드민</h2>
-      <p class="sub">지식 베이스 · 미답변 관리 (로그인 필요)</p>
+      <div class="auth-brand-row">
+        <img src="/connie-icon.png" alt="코니" class="auth-logo" width="72" height="72" />
+      </div>
+      <h2>코니 <span>관리자화면</span></h2>
+      <p class="sub">지식 베이스와 미답변을 관리합니다. 사내 계정으로 로그인하세요.</p>
       <div class="auth-tabs">
         <button type="button" id="tabLogin" class="active">로그인</button>
         <button type="button" id="tabRegister">회원가입</button>
@@ -442,7 +651,6 @@
           <label>비밀번호 (8자 이상)</label>
           <input type="password" id="regPassword" placeholder="비밀번호" autocomplete="new-password" />
         </div>
-        <p class="desc" style="margin:0 0 1rem;font-size:0.75rem;">첫 계정은 누구나 가입 가능합니다. 이후 추가 가입은 서버에 <code>ADMIN_SIGNUP_OPEN=true</code> 설정이 필요합니다.</p>
         <button type="button" id="btnRegister" class="primary" style="width:100%;margin-top:0.5rem;">회원가입</button>
       </div>
       <p id="authMessage" class="auth-msg"></p>
@@ -451,22 +659,29 @@
 
   <div id="adminRoot" style="display:none;">
   <header class="admin-header">
-    <h1>코니 <span>어드민</span></h1>
-    <div class="header-right">
-      <span id="adminUserEmail" class="admin-email"></span>
-      <button type="button" id="btnLogout">로그아웃</button>
-      <span id="serverStatus" class="server-status"></span>
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="/connie-icon.png" alt="코니" class="header-logo" width="40" height="40" />
+        <h1>코니 <span>관리자화면</span></h1>
+      </div>
+      <div class="header-right">
+        <span id="adminUserEmail" class="admin-email"></span>
+        <button type="button" id="btnLogout">로그아웃</button>
+        <span id="serverStatus" class="server-status"></span>
+      </div>
     </div>
   </header>
   <main class="main">
-    <p class="notice">
-      <strong>등록·수정한 지식이 챗봇에서 바로 반영됩니다.</strong>
-      <a href="http://localhost:5173" target="_blank" rel="noopener" class="link-chat">챗봇 열기 (localhost:5173) →</a>
-    </p>
-    <div id="serverWarning" class="server-warning"></div>
+    <div class="main-intro">
+      <p class="notice">
+        <strong>등록·수정한 지식이 챗봇에서 바로 반영됩니다.</strong>
+        <a href="http://localhost:5173" target="_blank" rel="noopener" class="link-chat">챗봇 열기 (localhost:5173) →</a>
+      </p>
+      <div id="serverWarning" class="server-warning"></div>
+    </div>
 
   <!-- 지식 추가/수정 -->
-  <section id="addEditSection">
+  <section id="addEditSection" class="admin-section">
     <h2>지식 추가 / 수정</h2>
     <input type="hidden" id="editId" value="" />
     <input type="hidden" id="pendingUnansweredId" value="" />
@@ -506,19 +721,20 @@
     <div id="addResult" class="result" style="display:none;"></div>
   </section>
 
+  <div class="main-grid">
   <!-- 지식 베이스 -->
-  <section>
+  <section class="admin-section">
     <h2>지식 베이스</h2>
     <p class="desc">챗봇이 이 목록을 기준으로 Exact Match + RAG에 사용합니다. <strong>자주 묻는 질문</strong>에 체크한 항목(최대 3개)이 채팅 화면에 칩으로 표시됩니다.</p>
     <div class="toolbar">
       <button type="button" id="btnList" class="secondary">목록 불러오기</button>
-      <span id="faqCount" class="faq-count" style="font-size:0.8125rem;color:var(--slate-500);">자주 묻는 질문: 0/3</span>
+      <span id="faqCount" class="faq-count">자주 묻는 질문: 0/3</span>
     </div>
     <ul id="knowledgeList" class="knowledge-list"></ul>
   </section>
 
   <!-- 미답변 질문 -->
-  <section>
+  <section class="admin-section">
     <h2>미답변 질문</h2>
     <p class="desc">챗봇이 답하지 못한 질문이 쌓입니다. "답 등록"을 누르면 위 폼에 질문이 채워지며, 답변을 입력 후 추가하면 자동으로 미답변 목록에서 제거됩니다.</p>
     <div class="toolbar">
@@ -531,6 +747,7 @@
     </div>
     <ul id="unansweredList" class="unanswered-list"></ul>
   </section>
+  </div>
   </main>
   </div>
 

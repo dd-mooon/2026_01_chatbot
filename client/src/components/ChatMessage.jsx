@@ -1,21 +1,34 @@
 /**
  * 채팅 메시지 — 코니 HR 어시스턴트 스타일
  */
+import { useState, useEffect } from 'react';
 import BotAvatar from '../BotAvatar';
 import UserAvatar from './UserAvatar';
 import { ANSWER_SOURCE_LABEL } from '../config/constants.js';
 import { formatMetaTime } from '../utils/formatTime.js';
+
+const AVATAR_ACTIVE_MS = 1000;
 
 export default function ChatMessage({ msg }) {
   const isUser = msg.role === 'user';
   const isAssistant = msg.role === 'assistant';
   const metaTime = msg.timestamp ? formatMetaTime(msg.timestamp) : '';
 
+  /** 답변 직후 활성 표정 → 1초 뒤 기본 표정 */
+  const [avatarResponding, setAvatarResponding] = useState(() => isAssistant);
+
+  useEffect(() => {
+    if (!isAssistant) return;
+    setAvatarResponding(true);
+    const id = setTimeout(() => setAvatarResponding(false), AVATAR_ACTIVE_MS);
+    return () => clearTimeout(id);
+  }, [isAssistant, msg.timestamp]);
+
   return (
     <div
       className={`flex w-full min-w-0 items-start gap-2 sm:gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
     >
-      {isAssistant && <BotAvatar size={34} className="shrink-0 mt-0.5" />}
+      {isAssistant && <BotAvatar size={34} className="shrink-0 mt-0.5" responding={avatarResponding} />}
       <div
         className={`min-w-0 max-w-[min(20rem,calc(100%-2.75rem))] flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
       >
