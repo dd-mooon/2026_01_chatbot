@@ -4,7 +4,17 @@
       "id": "63fa62611ae3c707dd9ec7bc",
       "email": "jijung.moon@concentrix.com",
       "passwordHash": "a3ad2573cbcc185b55c1a4e64abd10d2:258e0b95cca31d6d74eb8ced668d080be0d2c096b7b026bc1360e06d8ee2b6943bff5105770a90df6420df595cf961b82776016a07c6ae9565e40708335cec96",
-      "createdAt": "2026-03-30T06:41:24.228Z"
+      "createdAt": "2026-03-30T06:41:24.228Z",
+      "role": "superadmin",
+      "status": "active"
+    },
+    {
+      "id": "c61e8693020d83f22ae790bd",
+      "email": "seungjoo.park@concentrix.com",
+      "passwordHash": "39056d0794baf6bf116a7c787d55f506:38d30fcc0ee4f40ae5a6c343ac0115e068167a27f679ae91ae6a5697972cb9e0a8db94cd5cc7dfff04adfd45e21c69d807e4b0497a9f6814312f532a1a2ea28b",
+      "role": "admin",
+      "status": "pending",
+      "createdAt": "2026-04-09T04:20:00.810Z"
     }
   ]
 }

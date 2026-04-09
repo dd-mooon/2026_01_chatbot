@@ -11,25 +11,33 @@
 - 로컬 파트(골뱅이 앞): 영문·숫자 및 `._+-`, 길이 1~64자.
 - 관리자 화면에서는 **아이디만 입력**하고 UI에 `@concentrix.com`이 고정 표시된다.
 
+## 역할·상태 (`admin-users.json` 사용자 객체)
+
+| 필드 | 값 | 설명 |
+|------|-----|------|
+| `role` | `superadmin` \| `admin` | 최고 관리자는 가입 **승인/거절**만 가능 (어드민 UI의 「가입 승인」). |
+| `status` | `active` \| `pending` | `pending` 인 계정은 **로그인 불가**. 승인 시 `active`. |
+
+- **첫 번째 가입**(`users`가 비어 있을 때): 해당 계정은 **`superadmin` + `active`** 로 생성되며 즉시 로그인된다.
+- **그 이후 가입**: **`admin` + `pending`**. 세션 쿠키 없이 「승인 대기」 안내만 표시. 최고 관리자가 승인하면 `active` 가 되어 로그인 가능.
+
+## 레거시 데이터
+
+`role` / `status` 가 없는 기존 사용자는 서버 기동 후 **가입일이 가장 이른 계정**을 `superadmin`·`active`, 나머지를 `admin`·`active` 로 자동 보정해 파일에 저장한다.
+
 ## 인증 API
 
 | 메서드 | 경로 | 인증 | 설명 |
 |--------|------|------|------|
-| `POST` | `/api/auth/register` | 불필요 | 회원가입 후 세션 쿠키 발급 |
-| `POST` | `/api/auth/login` | 불필요 | 로그인 후 세션 쿠키 발급 |
+| `POST` | `/api/auth/register` | 불필요 | 첫 계정: 가입+세션. 이후: `pending` 요청만 (세션 없음). |
+| `POST` | `/api/auth/login` | 불필요 | `pending` 이면 403. |
 | `POST` | `/api/auth/logout` | (있으면 무효화) | 세션 삭제·쿠키 제거 |
-| `GET` | `/api/auth/me` | 쿠키 | `{ user: { email } }` 또는 401 |
+| `GET` | `/api/auth/me` | 쿠키 | `{ user: { email, role, status } }` 또는 401 |
+| `GET` | `/api/auth/pending-registrations` | 쿠키 + **superadmin** | `{ pending: [{ id, email, createdAt }] }` |
+| `POST` | `/api/auth/approve-registration` | 쿠키 + superadmin | 본문 `{ "userId": "..." }` |
+| `POST` | `/api/auth/reject-registration` | 쿠키 + superadmin | 본문 `{ "userId": "..." }` — 대기 계정 삭제 |
 
 요청 본문 예: `{ "email": "user@concentrix.com", "password": "..." }`
-
-## 회원가입 제한
-
-- **첫 계정**: 누구나 가입 가능 (`admin-users.json`의 `users`가 비어 있을 때).
-- **추가 계정**: 기본적으로 비활성. 서버 실행 시 **`ADMIN_SIGNUP_OPEN=true`** 환경 변수를 주면 추가 가입 허용.
-
-```bash
-ADMIN_SIGNUP_OPEN=true npm start
-```
 
 ## 세션
 
@@ -38,7 +46,8 @@ ADMIN_SIGNUP_OPEN=true npm start
 
 ## 보호되는 API (로그인 필요)
 
-미들웨어: `server/middleware/requireAdminAuth.js` — 쿠키에 유효한 세션이 없으면 **401**.
+미들웨어: `server/middleware/requireAdminAuth.js` — 쿠키에 유효한 세션이 없으면 **401**.  
+`active` 관리자·최고 관리자 모두 지식/업로드 등 일반 어드민 API 사용 가능.
 
 | 영역 | 경로 |
 |------|------|
@@ -53,22 +62,23 @@ ADMIN_SIGNUP_OPEN=true npm start
 
 ## CORS
 
-- `credentials: true` + `origin: true` 로 쿠키 전달이 가능하도록 설정되어 있다 (`server/index.js`).
+- `credentials: true` + 허용 `origin` 목록으로 쿠키 전달이 가능하도록 설정되어 있다 (`server/config.js`의 `CORS_ALLOWED_ORIGINS`).
 
 ## 관련 파일
 
 | 파일 | 역할 |
 |------|------|
-| `server/routes/auth.js` | register / login / logout / me |
-| `server/services/adminUsers.js` | 사용자 목록, 해시, `validateEmail` |
+| `server/routes/auth.js` | register / login / logout / me / 승인 API |
+| `server/services/adminUsers.js` | 사용자, 역할, 승인·거절, 레거시 마이그레이션 |
 | `server/services/adminSessions.js` | 세션 토큰 발급·검증 |
+| `server/middleware/requireAdminAuth.js` | `requireAdminAuth` (승인 API는 `auth.js`에서 superadmin 검증) |
 | `server/data/admin-users.json` | 계정 저장소 |
-| `server/public/admin.html` | 로그인·회원가입 UI, `fetch` 시 `credentials: 'include'` |
+| `server/public/admin.html` | 로그인·가입·가입 승인 UI |
 
 ## 운영 시 참고
 
 - `admin-users.json`에는 **비밀번호 해시**만 저장된다. 저장소에 올릴지 여부는 팀 정책에 따른다.
-- API/정적 라우트 순서: **API 라우트가 `express.static`보다 먼저** 등록되어 `/api/*`가 우선 처리된다.
+- 최고 관리자 계정을 잃어버리면 파일에서 직접 `role`·`status` 를 수정하거나, `users` 를 비운 뒤 첫 가입으로 부트스트랩해야 한다.
 
 ## 같이 보면 좋은 문서
 

@@ -1,5 +1,7 @@
 /**
  * 관리자 계정 저장 (비밀번호 scrypt 해시)
+ * - role: superadmin | admin
+ * - status: active | pending
  */
 import fs from 'fs';
 import path from 'path';
@@ -22,7 +24,33 @@ function saveRaw(data) {
   fs.writeFileSync(ADMIN_USERS_FILE, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+/** 레거시 users에 role/status 없으면: 가장 오래된 계정 = superadmin·active, 나머지 admin·active */
+function migrateLegacyUsers(users) {
+  if (!users.length || !users.some((u) => !u.role || !u.status)) return false;
+  const byCreated = [...users].sort(
+    (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+  );
+  const superId = byCreated[0].id;
+  for (const u of users) {
+    if (!u.status) u.status = 'active';
+    if (!u.role) u.role = u.id === superId ? 'superadmin' : 'admin';
+  }
+  return true;
+}
+
+let migrationDone = false;
+
+function ensureMigrated() {
+  if (migrationDone) return;
+  const data = loadRaw();
+  if (migrateLegacyUsers(data.users)) {
+    saveRaw(data);
+  }
+  migrationDone = true;
+}
+
 export function listUsers() {
+  ensureMigrated();
   return loadRaw().users;
 }
 
@@ -63,12 +91,23 @@ export function validatePassword(password) {
 }
 
 export function findUserByEmail(email) {
+  ensureMigrated();
   const e = email.trim().toLowerCase();
   return listUsers().find((u) => u.email === e) || null;
 }
 
+export function findUserById(id) {
+  ensureMigrated();
+  return listUsers().find((u) => u.id === id) || null;
+}
+
+/**
+ * 첫 계정(bootstrap): superadmin + active, 즉시 로그인 가능.
+ * 이후: admin + pending, 최고관리자 승인 후 로그인.
+ */
 export function createUser(email, password) {
   const e = email.trim().toLowerCase();
+  ensureMigrated();
   const data = loadRaw();
   const { users } = data;
   if (users.some((u) => u.email === e)) {
@@ -76,19 +115,74 @@ export function createUser(email, password) {
   }
   const id = randomBytes(12).toString('hex');
   const passwordHash = hashPassword(password);
+  const isBootstrap = users.length === 0;
+  const role = isBootstrap ? 'superadmin' : 'admin';
+  const status = isBootstrap ? 'active' : 'pending';
   users.push({
     id,
     email: e,
     passwordHash,
+    role,
+    status,
     createdAt: new Date().toISOString(),
   });
   saveRaw({ users });
-  return { ok: true, user: { id, email: e } };
+  return {
+    ok: true,
+    user: { id, email: e, role, status },
+    bootstrap: isBootstrap,
+  };
 }
 
+/** @returns {{ ok: true, user } | { ok: false, code?: 'pending'|'invalid' }} */
 export function verifyLogin(email, password) {
   const user = findUserByEmail(email);
-  if (!user) return { ok: false };
-  if (!verifyPassword(password, user.passwordHash)) return { ok: false };
-  return { ok: true, user: { id: user.id, email: user.email } };
+  if (!user) return { ok: false, code: 'invalid' };
+  if (user.status === 'pending') return { ok: false, code: 'pending' };
+  if (user.status !== 'active') return { ok: false, code: 'invalid' };
+  if (!verifyPassword(password, user.passwordHash)) return { ok: false, code: 'invalid' };
+  return {
+    ok: true,
+    user: { id: user.id, email: user.email, role: user.role, status: user.status },
+  };
+}
+
+export function listPendingUsers() {
+  return listUsers().filter((u) => u.status === 'pending');
+}
+
+export function isActiveSuperAdmin(user) {
+  return Boolean(user && user.role === 'superadmin' && user.status === 'active');
+}
+
+export function approvePendingUser(actorId, targetId) {
+  const actor = findUserById(actorId);
+  if (!isActiveSuperAdmin(actor)) {
+    return { ok: false, error: '최고 관리자만 승인할 수 있습니다.' };
+  }
+  const data = loadRaw();
+  const target = data.users.find((u) => u.id === targetId);
+  if (!target || target.status !== 'pending') {
+    return { ok: false, error: '승인 대기 중인 사용자를 찾을 수 없습니다.' };
+  }
+  target.status = 'active';
+  saveRaw(data);
+  return { ok: true, user: { id: target.id, email: target.email } };
+}
+
+export function rejectPendingUser(actorId, targetId) {
+  const actor = findUserById(actorId);
+  if (!isActiveSuperAdmin(actor)) {
+    return { ok: false, error: '최고 관리자만 거절할 수 있습니다.' };
+  }
+  const data = loadRaw();
+  const idx = data.users.findIndex((u) => u.id === targetId);
+  if (idx === -1) return { ok: false, error: '사용자를 찾을 수 없습니다.' };
+  const target = data.users[idx];
+  if (target.status !== 'pending') {
+    return { ok: false, error: '승인 대기 중인 계정만 거절할 수 있습니다.' };
+  }
+  data.users.splice(idx, 1);
+  saveRaw(data);
+  return { ok: true };
 }

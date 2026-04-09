@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>코니 관리자화면 — 지식 베이스 관리</title>
+  <link rel="icon" type="image/png" href="/connie-icon.png" />
+  <link rel="apple-touch-icon" href="/connie-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -181,11 +183,13 @@
       box-shadow: var(--shadow-card);
     }
     .main-grid {
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 1.5rem;
+      align-items: stretch;
     }
-    @media (min-width: 960px) {
-      .main-grid { grid-template-columns: 1fr 1fr; align-items: start; }
+    #sectionPendingApprovals {
+      margin-top: 2rem;
     }
     section.admin-section,
     section#addEditSection {
@@ -548,6 +552,12 @@
     .auth-card h2 { margin: 0 0 0.35rem 0; font-size: 1.35rem; color: var(--cnx-dark); letter-spacing: -0.03em; }
     .auth-card h2 span { color: var(--cnx-cyan); }
     .auth-card .sub { font-size: 0.8125rem; color: var(--slate-500); margin-bottom: 1.35rem; line-height: 1.5; }
+    .register-hint {
+      margin: 0 0 0.75rem;
+      font-size: 0.75rem;
+      color: var(--slate-500);
+      line-height: 1.45;
+    }
     .auth-tabs {
       display: flex;
       gap: 0.35rem;
@@ -683,6 +693,7 @@
           <label>비밀번호 (8자 이상)</label>
           <input type="password" id="regPassword" placeholder="비밀번호" autocomplete="new-password" />
         </div>
+        <p class="register-hint">서버에 계정이 이미 있으면, 최고 관리자 승인 후 로그인할 수 있습니다.</p>
         <button type="button" id="btnRegister" class="primary" style="width:100%;margin-top:0.5rem;">회원가입</button>
       </div>
       <p id="authMessage" class="auth-msg"></p>
@@ -784,6 +795,16 @@
     <ul id="unansweredList" class="unanswered-list"></ul>
   </section>
   </div>
+
+  <!-- 최고 관리자 전용: 가입 승인 (하단 배치) -->
+  <section id="sectionPendingApprovals" class="admin-section" style="display:none;">
+    <h2>가입 승인</h2>
+    <p class="desc">회원가입을 요청한 계정입니다. 승인 후 해당 사용자가 로그인할 수 있습니다.</p>
+    <div class="toolbar">
+      <button type="button" id="btnRefreshPending" class="secondary">목록 새로고침</button>
+    </div>
+    <ul id="pendingRegistrationsList" class="knowledge-list is-empty"></ul>
+  </section>
   </main>
   </div>
 
@@ -809,17 +830,86 @@
       return s + '@concentrix.com';
     }
 
-    (async function initAuth() {
-      const authScreen = document.getElementById('authScreen');
-      const adminRoot = document.getElementById('adminRoot');
-      const emailEl = document.getElementById('adminUserEmail');
+    function setupSuperAdminPanel(user) {
+      var sec = document.getElementById('sectionPendingApprovals');
+      if (!sec) return;
+      var isSuper = user && user.role === 'superadmin';
+      sec.style.display = isSuper ? 'block' : 'none';
+      if (isSuper) loadPendingRegistrations();
+    }
+
+    async function loadPendingRegistrations() {
+      var listEl = document.getElementById('pendingRegistrationsList');
+      if (!listEl) return;
       try {
-        const me = await fetchApi(API_BASE + '/api/auth/me');
+        var res = await fetchApi(API_BASE + '/api/auth/pending-registrations');
+        var data = await parseJsonRes(res);
+        listEl.innerHTML = '';
+        if (!res.ok) {
+          listEl.className = 'knowledge-list is-empty';
+          listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">' + escapeHtml(data.error || '목록을 불러오지 못했습니다.') + '</li>';
+          return;
+        }
+        var items = data.pending || [];
+        if (items.length === 0) {
+          listEl.className = 'knowledge-list is-empty';
+          listEl.innerHTML = '<li class="empty-state">승인 대기 중인 요청이 없습니다.</li>';
+          return;
+        }
+        listEl.className = 'knowledge-list';
+        items.forEach(function (p) {
+          var li = document.createElement('li');
+          li.className = 'knowledge-item';
+          var created = (p.createdAt || '').slice(0, 19).replace('T', ' ');
+          li.innerHTML = '<div class="body"><div class="answer">' + escapeHtml(p.email) + '</div><div class="meta">요청일시 · ' + escapeHtml(created) + '</div></div><div class="item-actions"><button type="button" class="edit-btn approve-pending-btn" data-id="' + escapeHtml(p.id) + '">승인</button><button type="button" class="danger reject-pending-btn" data-id="' + escapeHtml(p.id) + '">거절</button></div>';
+          listEl.appendChild(li);
+        });
+        listEl.querySelectorAll('.approve-pending-btn').forEach(function (btn) {
+          btn.onclick = function () { approveOrRejectPending(btn.dataset.id, true); };
+        });
+        listEl.querySelectorAll('.reject-pending-btn').forEach(function (btn) {
+          btn.onclick = function () { approveOrRejectPending(btn.dataset.id, false); };
+        });
+      } catch (e) {
+        listEl.className = 'knowledge-list is-empty';
+        listEl.innerHTML = '<li class="empty-state" style="color:var(--red-600);">요청 실패: ' + escapeHtml(e.message) + '</li>';
+      }
+    }
+
+    async function approveOrRejectPending(userId, approve) {
+      if (!userId) return;
+      if (!approve && !confirm('이 가입 요청을 거절할까요? 계정이 삭제됩니다.')) return;
+      try {
+        var url = approve ? API_BASE + '/api/auth/approve-registration' : API_BASE + '/api/auth/reject-registration';
+        var res = await fetchApi(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: userId }),
+        });
+        var data = await parseJsonRes(res);
+        if (!res.ok) {
+          alert(data.error || '처리 실패');
+          return;
+        }
+        alert(approve ? '승인되었습니다.' : '거절되었습니다.');
+        loadPendingRegistrations();
+      } catch (e) {
+        alert('요청 실패: ' + e.message);
+      }
+    }
+
+    (async function initAuth() {
+      var authScreen = document.getElementById('authScreen');
+      var adminRoot = document.getElementById('adminRoot');
+      var emailEl = document.getElementById('adminUserEmail');
+      try {
+        var me = await fetchApi(API_BASE + '/api/auth/me');
         if (me.ok) {
-          const data = await me.json();
+          var data = await me.json();
           authScreen.style.display = 'none';
           adminRoot.style.display = 'block';
           if (emailEl) emailEl.textContent = data.user && data.user.email ? data.user.email : '';
+          setupSuperAdminPanel(data.user);
         } else {
           authScreen.style.display = 'flex';
           adminRoot.style.display = 'none';
@@ -871,6 +961,7 @@
           document.getElementById('adminRoot').style.display = 'block';
           if (document.getElementById('adminUserEmail')) document.getElementById('adminUserEmail').textContent = data.user && data.user.email ? data.user.email : '';
           document.getElementById('loginPassword').value = '';
+          setupSuperAdminPanel(data.user);
         } else {
           setAuthMsg(data.error || '로그인 실패');
         }
@@ -895,9 +986,17 @@
         });
         const data = await parseJsonRes(res);
         if (res.ok) {
+          if (data.pending) {
+            setAuthMsg(data.message || '최고 관리자 승인 후 로그인할 수 있습니다.', true);
+            document.getElementById('tabLogin').click();
+            document.getElementById('loginEmailLocal').value = document.getElementById('regEmailLocal').value;
+            document.getElementById('regPassword').value = '';
+            return;
+          }
           document.getElementById('authScreen').style.display = 'none';
           document.getElementById('adminRoot').style.display = 'block';
           if (document.getElementById('adminUserEmail')) document.getElementById('adminUserEmail').textContent = data.user && data.user.email ? data.user.email : '';
+          setupSuperAdminPanel(data.user);
         } else {
           setAuthMsg(data.error || data.hint || '가입 실패');
         }
@@ -906,6 +1005,9 @@
       }
     };
 
+    var btnRefreshPending = document.getElementById('btnRefreshPending');
+    if (btnRefreshPending) btnRefreshPending.onclick = function () { loadPendingRegistrations(); };
+
     document.getElementById('btnLogout').onclick = async function () {
       try {
         await fetchApi(API_BASE + '/api/auth/logout', { method: 'POST' });
@@ -913,6 +1015,8 @@
       document.getElementById('adminRoot').style.display = 'none';
       document.getElementById('authScreen').style.display = 'flex';
       if (document.getElementById('adminUserEmail')) document.getElementById('adminUserEmail').textContent = '';
+      var secPending = document.getElementById('sectionPendingApprovals');
+      if (secPending) secPending.style.display = 'none';
       setAuthMsg('');
     };
 

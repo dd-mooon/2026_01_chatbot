@@ -59,7 +59,8 @@ app.get('/', (req, res) => {
       unanswered: 'GET /api/unanswered (미답변 목록), DELETE /api/unanswered/:id (제거)',
     },
     admin: 'GET /admin.html (로그인 후 지식·미답변 관리)',
-    auth: 'POST /api/auth/register|login|logout, GET /api/auth/me',
+    auth:
+      'POST /api/auth/register|login|logout, GET /api/auth/me, GET /api/auth/pending-registrations, POST approve|reject-registration',
   });
 });
 
