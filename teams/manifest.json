@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "packageName": "com.concentrix.connie.tab",
+  "developer": {
+    "name": "Connie (내부)",
+    "websiteUrl": "https://2026-01-chatbot.vercel.app",
+    "privacyUrl": "https://2026-01-chatbot.vercel.app",
+    "termsOfUseUrl": "https://2026-01-chatbot.vercel.app"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "코니",
+    "full": "코니 사내 지식 챗봇"
+  },
+  "description": {
+    "short": "사내 지식 질의 챗봇",
+    "full": "등록된 사내 지식을 기준으로 질문에 답하는 코니(Connie) 웹 앱입니다. 배포된 HTTPS URL을 팀즈 탭에서 엽니다."
+  },
+  "accentColor": "#006666",
+  "staticTabs": [
+    {
+      "entityId": "connieMain",
+      "name": "채팅",
+      "contentUrl": "https://2026-01-chatbot.vercel.app/",
+      "websiteUrl": "https://2026-01-chatbot.vercel.app/",
+      "scopes": ["personal"]
+    }
+  ],
+  "validDomains": ["2026-01-chatbot.vercel.app"]
+}

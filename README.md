@@ -212,7 +212,8 @@ cd server && npm run start          # http://localhost:3001
 cd client && npm run dev             # http://localhost:5173
 ```
 
-**배포**: [DEPLOY.md](./DEPLOY.md)
+**배포**: [DEPLOY.md](./DEPLOY.md)  
+**Microsoft Teams 탭**(웹 URL을 개인 탭으로 열기): [teams/README.md](./teams/README.md)
 
 **macOS Chrome(서버 폴더에서)**
 
