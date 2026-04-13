@@ -2,12 +2,10 @@
  * 자주 묻는 질문 (FAQ) API 훅
  */
 import { useState, useEffect } from 'react';
-import { API_BASE } from '../config/constants.js';
-
-const DEFAULT_FAQ = ['건전지 어디 있어?', '회식 언제야?', '연차는 며칠이야?'];
+import { API_BASE, FAQ_CHIPS } from '../config/constants.js';
 
 export function useFaq() {
-  const [faqChips, setFaqChips] = useState(DEFAULT_FAQ);
+  const [faqChips, setFaqChips] = useState(FAQ_CHIPS);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/faq`)

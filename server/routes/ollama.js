@@ -2,19 +2,10 @@
  * LLM 상태 API (Ollama 또는 Groq)
  */
 import { Router } from 'express';
-import { ollama, OLLAMA_MODEL } from '../services/ollama.js';
+import { ollama, OLLAMA_MODEL, probeGroqChat, probeOllamaChat } from '../services/ollama.js';
 import { USE_GROQ, GROQ_MODEL } from '../config.js';
 
 const router = Router();
-
-const GROQ_CHAT_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-async function withTimeout(promise, ms, label) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error(`${label} 응답 시간 초과`)), ms)),
-  ]);
-}
 
 router.get('/', async (req, res) => {
   try {
@@ -27,31 +18,12 @@ router.get('/', async (req, res) => {
       };
 
       if (req.query.test === 'chat') {
-        const key = process.env.GROQ_API_KEY?.trim();
-        const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS) || 120000;
         try {
-          const chatRes = await withTimeout(
-            fetch(GROQ_CHAT_URL, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${key}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                model: GROQ_MODEL,
-                messages: [{ role: 'user', content: '한 줄로 "테스트 성공"이라고만 답하세요.' }],
-                temperature: 0.3,
-              }),
-            }).then(async (r) => {
-              const t = await r.text();
-              if (!r.ok) throw new Error(t.slice(0, 300));
-              const data = JSON.parse(t);
-              return { message: { content: data.choices?.[0]?.message?.content ?? '' } };
-            }),
-            Math.min(OLLAMA_TIMEOUT_MS, 60000),
-            'Groq(테스트)'
-          );
-          payload.chatTest = { ok: true, reply: (chatRes.message?.content ?? '').trim().slice(0, 200) };
+          const chatRes = await probeGroqChat();
+          payload.chatTest = {
+            ok: true,
+            reply: (chatRes.message?.content ?? '').trim().slice(0, 200),
+          };
         } catch (chatErr) {
           payload.chatTest = { ok: false, error: chatErr.message };
         }
@@ -76,13 +48,11 @@ router.get('/', async (req, res) => {
 
     if (req.query.test === 'chat' && hasModel) {
       try {
-        const OLLAMA_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS) || 120000;
-        const chatRes = await withTimeout(
-          ollama.chat({ model: OLLAMA_MODEL, messages: [{ role: 'user', content: '한 줄로 "테스트 성공"이라고만 답하세요.' }] }),
-          Math.min(OLLAMA_TIMEOUT_MS, 60000),
-          'Ollama(테스트)'
-        );
-        payload.chatTest = { ok: true, reply: (chatRes.message?.content ?? '').trim().slice(0, 200) };
+        const chatRes = await probeOllamaChat();
+        payload.chatTest = {
+          ok: true,
+          reply: (chatRes.message?.content ?? '').trim().slice(0, 200),
+        };
       } catch (chatErr) {
         payload.chatTest = { ok: false, error: chatErr.message };
       }

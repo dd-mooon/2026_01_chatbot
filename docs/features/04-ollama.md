@@ -44,12 +44,12 @@ Groq 사용 시 RAG·일반 지식 모두 **질문과 프롬프트에 포함된 
 ### Ollama 모드 (`USE_GROQ`가 false)
 
 - `ollama.list()`로 설치된 모델 목록 `models`, 설정 모델과의 일치 여부 `modelAvailable`, `host` 등을 반환한다.  
-- 쿼리 `?test=chat`이고 `modelAvailable`이 true이면, 짧은 채팅 한 번으로 **`chatTest`**에 추론 성공 여부를 담는다.
+- 쿼리 `?test=chat`이고 `modelAvailable`이 true이면, 서비스 **`probeOllamaChat()`**으로 짧은 추론 1회를 실행해 **`chatTest`**에 결과를 담는다.
 
 ### Groq 모드 (`USE_GROQ`가 true)
 
 - `models` / `modelAvailable` 대신 `provider: "groq"`, `model`, 키 설정 안내 `message` 위주의 JSON을 반환한다.  
-- `?test=chat`이면 Groq `chat/completions`에 테스트 메시지를 보내 **`chatTest`**로 성공·실패를 확인한다.
+- `?test=chat`이면 서비스 **`probeGroqChat()`**으로 테스트 메시지를 보내 **`chatTest`**로 성공·실패를 확인한다. (Groq HTTP 호출은 `server/services/ollama.js`에만 둔다.)
 
 ## 실패 시 동작 (채팅과 연동)
 

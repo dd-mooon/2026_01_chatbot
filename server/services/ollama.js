@@ -36,7 +36,7 @@ function withTimeout(promise, ms, label = 'LLM') {
 /**
  * Groq OpenAI 호환 chat.completions — ollama.chat 과 동일한 형태로 반환
  */
-async function groqChat({ model, messages }) {
+async function groqChat({ model, messages, temperature = 0.5 }) {
   const key = process.env.GROQ_API_KEY?.trim();
   if (!key) throw new Error('GROQ_API_KEY가 없습니다.');
 
@@ -49,7 +49,7 @@ async function groqChat({ model, messages }) {
     body: JSON.stringify({
       model: model || GROQ_MODEL,
       messages,
-      temperature: 0.5,
+      temperature,
     }),
   });
 
@@ -89,6 +89,32 @@ ${question}`;
     USE_GROQ ? 'Groq(RAG)' : 'Ollama(RAG)'
   );
   return response.message?.content ?? '';
+}
+
+const LLM_STATUS_TEST_PROMPT = '한 줄로 "테스트 성공"이라고만 답하세요.';
+
+/** 상태 API용: Groq로 짧은 추론 1회 (온도 0.3) */
+export async function probeGroqChat() {
+  const cap = Math.min(OLLAMA_TIMEOUT_MS, 60000);
+  return withTimeout(
+    groqChat({
+      model: GROQ_MODEL,
+      messages: [{ role: 'user', content: LLM_STATUS_TEST_PROMPT }],
+      temperature: 0.3,
+    }),
+    cap,
+    'Groq(테스트)'
+  );
+}
+
+/** 상태 API용: Ollama로 짧은 추론 1회 */
+export async function probeOllamaChat() {
+  const cap = Math.min(OLLAMA_TIMEOUT_MS, 60000);
+  return withTimeout(
+    ollama.chat({ model: OLLAMA_MODEL, messages: [{ role: 'user', content: LLM_STATUS_TEST_PROMPT }] }),
+    cap,
+    'Ollama(테스트)'
+  );
 }
 
 export async function getGeneralKnowledgeReplyFromOllama(question) {
