@@ -2,6 +2,8 @@
  * 앱 상수
  */
 export const API_BASE = import.meta.env.VITE_API_URL || '';
+/** `public/` 정적 아바타 등 교체 시 CDN·브라우저 캐시 무력화용(값만 올리면 됨) */
+export const PUBLIC_ASSET_VER = '3';
 export const COMPANY_SITE = 'https://kr.catalyst.concentrix.com/';
 
 export const FAQ_CHIPS = ['건전지 어디 있어?', '회식 언제야?', '연차는 며칠이야?'];

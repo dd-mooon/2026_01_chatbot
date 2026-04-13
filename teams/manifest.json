@@ -32,5 +32,8 @@
       "scopes": ["personal"]
     }
   ],
-  "validDomains": ["2026-01-chatbot.vercel.app"]
+  "validDomains": [
+    "2026-01-chatbot.vercel.app",
+    "two026-01-chatbot-1.onrender.com"
+  ]
 }

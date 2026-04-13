@@ -1,5 +1,6 @@
 /** 봇 아바타 — 코니 캐릭터 이미지 (responding: 외부 제어, pulseMs: 마운트 후 일정 시간만 활성) */
 import { useState, useEffect } from 'react';
+import { PUBLIC_ASSET_VER } from './config/constants.js';
 
 export default function BotAvatar({
   size = 40,
@@ -17,7 +18,8 @@ export default function BotAvatar({
 
   const s = size;
   const showActive = pulseMs > 0 ? pulseActive : responding;
-  const src = showActive ? '/assets/connie-active.png' : '/assets/connie.png';
+  const q = PUBLIC_ASSET_VER ? `?v=${PUBLIC_ASSET_VER}` : '';
+  const src = (showActive ? '/assets/connie-active.png' : '/assets/connie.png') + q;
 
   return (
     <div
