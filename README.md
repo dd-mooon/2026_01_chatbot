@@ -108,6 +108,7 @@ flowchart LR
 │   ├── public/             # admin.html 등
 │   ├── data/               # exact-match, faq, admin-users, unanswered 등
 │   └── uploads/
+├── teams/                  # Teams 개인 탭용 매니페스트·아이콘(zip 패키지 원본)
 ├── docs/features/          # 파이프라인·기능별 상세
 ├── DEPLOY.md
 └── README.md
@@ -214,6 +215,11 @@ cd client && npm run dev             # http://localhost:5173
 
 **배포**: [DEPLOY.md](./DEPLOY.md)  
 **Microsoft Teams 탭**(웹 URL을 개인 탭으로 열기): [teams/README.md](./teams/README.md)
+
+**Teams와 스터디 제출·회사 배포**
+
+- **스터디·과제 제출**: 검증·데모는 배포된 **웹 URL**과 본 README·`DEPLOY.md`로 충분하다. `teams/`에는 매니페스트(`manifest.json`)와 아이콘이 포함되어 있으나, 조직 테넌트에서 **사용자 지정 앱**이 관리자 승인 큐로만 진행되면, 스토어에 게시되기 전까지 **Teams에 반드시 올릴 필요는 없다**(보류 중 요청 상태로 두어도 과제 제출과 무관).
+- **회사에서 본격 도입할 때**: IT 또는 Teams 관리자에게 **커스텀 앱 승인·게시**(조직용 빌드 등)를 요청하면 된다. 그 시점에 프로덕션 **프론트·API 도메인**, `validDomains`, 개인정보처리방침·약관 URL을 [teams/manifest.json](./teams/manifest.json)에 맞추고, [teams/README.md](./teams/README.md) 절차대로 zip을 다시 만들어 제출하면 된다. **Teams에 당장 배포하지 않는 한 앱 코드를 그 때문에 수정할 필수는 없다.**
 
 **macOS Chrome(서버 폴더에서)**
 
