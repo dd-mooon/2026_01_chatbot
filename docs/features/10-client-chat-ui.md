@@ -31,7 +31,7 @@ Vite + React로 구현된 **사용자용 채팅 화면**의 구성과 데이터 
 `content`, `refLink`, `attachmentUrl`, `attachmentName`, `type`, `ollamaFailed`, `ollamaError`, `generalKnowledge`, `disclaimer`, `timestamp`.
 
 `ChatMessage`는 `ANSWER_SOURCE_LABEL`로 `exact_match` / `rag` / `no_match`(일반 지식 포함)에 따른 설명 문구를 하단에 표시한다.  
-서버가 내려주는 RAG 근거 배열 **`sources`는 `useChat`에서 메시지 상태에 넣지 않으며**, 채팅 UI에는 **문단 목록으로 펼쳐 보이지 않는다**(본문·링크·첨부·면책·유형 라벨 위주).
+RAG 응답의 **`sources`**는 `useChat`이 어시스턴트 메시지에 넘기며, `ChatMessage`에서 **`type === 'rag'`일 때만** `<details>`로 **「참고한 사내 문단 (N개)」**을 접이식 표시한다(문단 본문·`metadata.source` 등).
 
 ## 스타일
 

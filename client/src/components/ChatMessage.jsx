@@ -55,6 +55,27 @@ export default function ChatMessage({ msg }) {
               {msg.disclaimer}
             </p>
           )}
+          {isAssistant && msg.type === 'rag' && msg.sources?.length > 0 && (
+            <details className="mt-3 rounded-lg border border-slate-200/90 bg-slate-50/80 open:bg-slate-50">
+              <summary className="cursor-pointer list-none px-3 py-2 text-[12px] font-medium text-[#006666] [&::-webkit-details-marker]:hidden">
+                참고한 사내 문단 ({msg.sources.length}개)
+              </summary>
+              <ul className="max-h-44 overflow-y-auto border-t border-slate-200/80 px-3 py-2 space-y-2.5 text-[11px] leading-snug text-slate-600">
+                {msg.sources.map((s, i) => (
+                  <li key={i} className="pl-2.5 border-l-2 border-[#006666]/25">
+                    <p className="whitespace-pre-wrap break-words">{s.text || ''}</p>
+                    {(s.metadata?.source || s.metadata?.refLink) && (
+                      <p className="mt-1 text-[10px] text-slate-400 truncate">
+                        {s.metadata.source}
+                        {s.metadata.source && s.metadata.refLink ? ' · ' : ''}
+                        {s.metadata.refLink}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
           {isAssistant && msg.type && (
             <p className="mt-3 text-[11px] text-slate-500 border-t border-slate-100 pt-2.5">
               {msg.type === 'no_match' && msg.ollamaFailed

@@ -48,6 +48,7 @@ export function useChat() {
           attachmentUrl: data.attachmentUrl || null,
           attachmentName: data.attachmentName || null,
           type: data.type,
+          sources: Array.isArray(data.sources) ? data.sources : [],
           ollamaFailed: data.ollamaFailed ?? false,
           ollamaError: data.ollamaError || null,
           generalKnowledge: data.generalKnowledge ?? false,

@@ -17,7 +17,7 @@ Connie는 웹 챗봇 UI와 REST API, 관리자 화면으로 구성된다. 사용
 **핵심 기능을 한 줄로 정리하면 다음과 같다.**
 
 - **Exact Match**: 자주 나오는 질의는 키워드 포함 여부만으로 즉시 응답(LLM 미사용).
-- **RAG**: ChromaDB 의미 검색으로 가져온 문단을 프롬프트에 넣어 답을 생성하며, API 응답에 근거 문단 배열 `sources`를 포함한다.
+- **RAG**: ChromaDB 의미 검색으로 가져온 문단을 프롬프트에 넣어 답을 생성하며, API·채팅 UI에 근거 문단 배열 `sources`를 제공한다(RAG일 때 접이식 블록).
 - **미매칭 처리**: 사내 검색 결과가 없으면 미답변 로그를 남기고, 일반 지식 모드로 LLM을 호출할 수 있으며 이때 면책 문구를 붙인다.
 - **운영**: 지식 CRUD 시 JSON과 Chroma 컬렉션을 함께 갱신하고, FAQ 칩·미답변 목록·업로드·도메인 제한 가입·승인 흐름을 제공한다.
 
@@ -133,7 +133,7 @@ flowchart LR
 
 ## 6. 사용자 경험(UX)
 
-**일반 사용자** — 빈 상태 안내 후 FAQ 칩 또는 직접 입력으로 질문한다. 응답으로 본문, 답변 유형 라벨, 관련 링크·첨부, 일반 지식일 때 면책 문구를 본다. API의 `sources`(RAG 근거 문단)는 JSON에 포함되나, **현재 채팅 화면에는 문단 목록을 펼쳐 보이지 않는다**([ChatMessage.jsx](client/src/components/ChatMessage.jsx)).
+**일반 사용자** — 빈 상태 안내 후 FAQ 칩 또는 직접 입력으로 질문한다. 응답으로 본문, 답변 유형 라벨, 관련 링크·첨부, 일반 지식일 때 면책 문구를 본다. RAG(`type: rag`)일 때는 **「참고한 사내 문단」** 접이식 블록에서 `sources` 근거 문단을 확인할 수 있다([useChat.js](client/src/hooks/useChat.js), [ChatMessage.jsx](client/src/components/ChatMessage.jsx)).
 
 **관리자** — `http://<서버 호스트>/admin.html`에 접속해, [server/config.js](server/config.js)의 `ADMIN_EMAIL_DOMAIN`(기본 `concentrix.com`) 이메일로 가입·로그인한다. 최초 한 명은 최고 관리자로 부트스트랩된다. 이후 지식·FAQ·미답변·업로드를 관리한다.
 
