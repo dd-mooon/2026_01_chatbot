@@ -216,11 +216,11 @@ cd client && npm run dev             # http://localhost:5173
 **배포**: [DEPLOY.md](./DEPLOY.md)  
 **Microsoft Teams 탭**(웹 URL을 개인 탭으로 열기): [teams/README.md](./teams/README.md)
 
-**Teams와 스터디 제출·회사 배포**
+**Teams와 스터디 제출**
 
 - **현재 상태**: 조직 Microsoft Teams에 커스텀 앱(코니) 패키지 **제출까지 완료**했으며, 테넌트 정책에 따라 **IT 관리자 승인 대기(Pending)** 중이다. 승인·게시 후에는 스토어의 **조직용 빌드** 등에서 구성원이 설치할 수 있다.
-- **스터디·과제 제출**: 검증·데모는 배포된 **웹 URL**과 본 README·`DEPLOY.md`로 충분하다. 위와 같이 Teams 쪽은 **승인 대기**여도 과제 제출·평가와 무관하다. `teams/`에는 매니페스트(`manifest.json`)와 아이콘이 포함되어 있으며, 조직에서 **사용자 지정 앱**이 관리자 승인 큐로만 진행되는 경우 스토어 게시 전까지 웹으로 검증하면 된다.
-- **회사에서 본격 도입할 때**: IT 또는 Teams 관리자에게 **커스텀 앱 승인·게시**(조직용 빌드 등)를 요청하면 된다. 그 시점에 프로덕션 **프론트·API 도메인**, `validDomains`, 개인정보처리방침·약관 URL을 [teams/manifest.json](./teams/manifest.json)에 맞추고, [teams/README.md](./teams/README.md) 절차대로 zip을 다시 만들어 제출하면 된다. **Teams에 당장 배포하지 않는 한 앱 코드를 그 때문에 수정할 필수는 없다.**
+- **스터디 제출**: 과제·데모는 배포된 **웹 URL**과 본 README·`DEPLOY.md`로 검증하면 되며, Teams는 위와 같이 **승인 대기**여도 제출·평가와 별개로 둘 수 있다.
+- **참고(매니페스트·조직 정책)**: 승인·게시 이후 **배포 URL**이 바뀌거나, 테넌트에서 요구하는 **도메인 허용(`validDomains`)·정책 URL** 등이 달라지면 [teams/manifest.json](./teams/manifest.json)을 그에 맞게 고친 뒤 [teams/README.md](./teams/README.md) 절차대로 zip을 다시 만들어 제출할 수 있다. 제출·승인·게시 방식은 **조직마다 다르므로** 필요 시 내부 IT 또는 Teams 관리 안내를 확인하면 된다. 웹 앱만 사용하는 경우에는 **Teams 연동만을 이유로 앱 코드를 당장 수정할 필수는 없다.**
 
 **macOS Chrome(서버 폴더에서)**
 
