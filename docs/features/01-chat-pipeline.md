@@ -29,14 +29,14 @@
 
 3. **검색 결과가 0건인 경우**  
    - 미답변 로그에 질문을 남긴다 (`addUnanswered`).  
-   - **Ollama 일반 지식** 모드 (`getGeneralKnowledgeReplyFromOllama`)로 답을 시도한다.  
+   - **일반 지식 LLM** 모드 (`getGeneralKnowledgeReplyFromOllama` — 내부에서 Ollama 또는 Groq)로 답을 시도한다.  
      - 성공 시: `type: "no_match"`, `generalKnowledge: true`, `disclaimer`에 일반 지식 안내 문구 포함.  
-     - Ollama 실패 시: 고정 안내 문(`FALLBACK_NO_KNOWLEDGE`)과 `ollamaFailed: true` 등.
+     - LLM 실패 시: 고정 안내 문(`FALLBACK_NO_KNOWLEDGE`)과 `ollamaFailed: true` 등. (필드명은 API 호환을 위해 `ollama` 접두어를 유지하며, Groq 사용 시에도 동일하게 내려간다.)
 
 4. **검색 결과가 1건 이상인 경우 (RAG)**  
-   - 문서들을 하나의 `[사내 지식]` 텍스트로 이어 붙인 뒤 Ollama에 넘겨 답을 생성한다 (`getAnswerFromOllama`).  
+   - 문서들을 하나의 `[사내 지식]` 텍스트로 이어 붙인 뒤 LLM에 넘겨 답을 생성한다 (`getAnswerFromOllama`).  
    - 성공 시: `type: "rag"`, `sources`에 검색된 문단·메타데이터, 첫 메타의 `refLink`·첨부 URL 등을 포함할 수 있다.  
-   - Ollama 실패 시: 미답변에 추가하고 **503**으로 “답변 생성 중 오류” 메시지를 반환한다.
+   - LLM 실패 시: 미답변에 추가하고 **503**으로 “답변 생성 중 오류” 등 안내를 반환한다(`GET /api/ollama-status`로 연결 상태 확인 가능).
 
 ## 응답 필드 (주요)
 
@@ -49,7 +49,7 @@
 | `sources` | RAG일 때 검색 근거 문단 목록 |
 | `generalKnowledge` | 사내 지식 없을 때 일반 지식으로 답한 경우 |
 | `disclaimer` | 일반 지식 답변 시 하단에 붙는 안내 |
-| `ollamaFailed` | Ollama 미연결 등으로 폴백한 경우 |
+| `ollamaFailed` | LLM 미연결·오류 등으로 폴백한 경우(필드명은 구현상 `ollama` 유지) |
 
 ## 관련 소스 파일
 

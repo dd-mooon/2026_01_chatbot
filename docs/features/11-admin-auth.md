@@ -53,7 +53,7 @@
 |------|------|
 | 지식 | `GET/POST/PUT/DELETE /api/knowledge` … |
 | 업로드 | `POST /api/upload` |
-| 미답변 | `GET/DELETE /api/unanswered` … |
+| 미답변 | `GET /api/unanswered`, `DELETE /api/unanswered/:id`, `DELETE /api/unanswered/bulk` |
 | FAQ 수정 | `PUT /api/faq` |
 
 **공개로 둔 API** (채팅 클라이언트·봇용):

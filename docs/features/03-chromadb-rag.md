@@ -3,7 +3,7 @@
 ## 목적
 
 질문을 **문장 그대로** 검색 키워드로 쓰지 않아도, **의미가 비슷한** 등록 지식 문장을 찾기 위해 벡터 DB(ChromaDB)를 사용한다.  
-검색된 문장들은 Ollama에 **컨텍스트**로 넘겨 RAG 답변을 만든다.
+검색된 문장들은 LLM(Ollama 또는 Groq)에 **컨텍스트**로 넘겨 RAG 답변을 만든다.
 
 ## 설정 (`server/config.js`)
 
@@ -12,7 +12,7 @@
 | `COLLECTION_NAME` | 컬렉션 이름 | `company_knowledge` |
 | `RAG_TOP_K` | 질문당 가져올 문서 개수 상한 | `5` |
 
-Chroma 클라이언트는 기본 호스트(로컬 Chroma 서버)에 연결한다. Docker 등으로 Chroma를 띄운 뒤 Node 서버가 접근 가능해야 한다.
+연결 정보는 `server/config.js`에서 결정한다. 우선 **`CHROMA_URL`**(전체 URL), 없으면 **`CHROMA_HOST` / `CHROMA_PORT` / `CHROMA_SSL`**. **`CHROMA_API_TOKEN`**이 있으면 Chroma Cloud 등 토큰 인증에 사용한다. 로컬이면 기본적으로 `localhost:8000` 근처의 Chroma 서버에 붙는다.
 
 ## 서비스 API (`server/services/chroma.js`)
 
@@ -28,7 +28,7 @@ Chroma 클라이언트는 기본 호스트(로컬 Chroma 서버)에 연결한다
 ## 검색 실패 시
 
 - Chroma 오류나 결과 없음 → 빈 배열.  
-- 채팅 파이프라인은 [01-chat-pipeline.md](01-chat-pipeline.md)대로 미답변 로그 + 일반 지식 Ollama 또는 폴백 문구로 분기한다.
+- 채팅 파이프라인은 [01-chat-pipeline.md](01-chat-pipeline.md)대로 미답변 로그 + 일반 지식 LLM 또는 폴백 문구로 분기한다.
 
 ## `ingest.js` (초기 데이터 적재)
 

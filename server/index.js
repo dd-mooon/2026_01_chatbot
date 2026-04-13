@@ -16,9 +16,8 @@ import uploadRouter from './routes/upload.js';
 import unansweredRouter from './routes/unanswered.js';
 import ollamaRouter from './routes/ollama.js';
 import authRouter from './routes/auth.js';
+import faqRouter from './routes/faq.js';
 import { requireAdminAuth } from './middleware/requireAdminAuth.js';
-import { loadFaqIds, saveFaqIds, getFaqChips } from './services/faq.js';
-import { FAQ_MAX } from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,6 +56,7 @@ app.get('/', (req, res) => {
       chat: 'POST /api/chat (body: { question: "..." })',
       knowledge: 'GET /api/knowledge (목록), POST/PUT/DELETE /api/knowledge (CRUD)',
       unanswered: 'GET /api/unanswered (미답변 목록), DELETE /api/unanswered/:id (제거)',
+      faq: 'GET /api/faq, PUT /api/faq (관리자)',
     },
     admin: 'GET /admin.html (로그인 후 지식·미답변 관리)',
     auth:
@@ -71,30 +71,7 @@ app.use('/api/ollama-status', ollamaRouter);
 app.use('/api/upload', requireAdminAuth, uploadRouter);
 app.use('/api/knowledge', requireAdminAuth, knowledgeRouter);
 app.use('/api/unanswered', requireAdminAuth, unansweredRouter);
-
-app.get('/api/faq', (req, res) => {
-  try {
-    const ids = loadFaqIds();
-    const chips = getFaqChips();
-    res.json({ ids, chips, max: FAQ_MAX });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-app.put('/api/faq', requireAdminAuth, (req, res) => {
-  try {
-    const { ids } = req.body || {};
-    const arr = Array.isArray(ids) ? ids : [];
-    if (arr.length > FAQ_MAX) {
-      return res.status(400).json({ error: `최대 ${FAQ_MAX}개까지 선택 가능합니다.` });
-    }
-    saveFaqIds(arr);
-    const chips = getFaqChips();
-    res.json({ message: '저장되었습니다.', ids: arr, chips });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+app.use('/api/faq', faqRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(UPLOADS_DIR));

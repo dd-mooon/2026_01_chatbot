@@ -4,6 +4,7 @@
 import { Router } from 'express';
 import { loadFaqIds, saveFaqIds, getFaqChips } from '../services/faq.js';
 import { FAQ_MAX } from '../config.js';
+import { requireAdminAuth } from '../middleware/requireAdminAuth.js';
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get(['/', ''], (req, res) => {
   }
 });
 
-router.put('/', (req, res) => {
+router.put('/', requireAdminAuth, (req, res) => {
   try {
     const { ids } = req.body || {};
     const arr = Array.isArray(ids) ? ids : [];

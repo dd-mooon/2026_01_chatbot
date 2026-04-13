@@ -101,7 +101,7 @@ curl http://localhost:3001/health
 2. **Root Directory**: `client`
 3. **Framework**: Vite
 4. **Environment Variables**:
-   - `VITE_API_URL` = `http://YOUR_ORACLE_VM_IP:3001` (예: `http://123.45.67.89:3001`)
+  - `VITE_API_URL` = `http://YOUR_ORACLE_VM_IP:3001` (예: `http://123.45.67.89:3001`)
 5. **Deploy**
 
 ### 8. 배포 후 확인
@@ -147,10 +147,12 @@ Oracle Cloud Free Tier 대신 유료 VPS를 쓰는 경우:
 
 ## 요약
 
-| 방법 | 비용 | Exact Match | RAG | Ollama |
-|------|------|-------------|-----|--------|
-| **A. Oracle Cloud Free** | 무료 | ✅ | ✅ | ✅ |
-| B. Railway/Render | 무료 | ✅ | ❌ | ❌ |
-| C. 유료 VPS | 유료 | ✅ | ✅ | ✅ |
+
+| 방법                       | 비용  | Exact Match | RAG | Ollama |
+| ------------------------ | --- | ----------- | --- | ------ |
+| **A. Oracle Cloud Free** | 무료  | ✅           | ✅   | ✅      |
+| B. Railway/Render        | 무료  | ✅           | ❌   | ❌      |
+| C. 유료 VPS                | 유료  | ✅           | ✅   | ✅      |
+
 
 **산출물 제출 시** → **방법 A** 사용 권장.

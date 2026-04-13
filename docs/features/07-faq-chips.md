@@ -33,3 +33,8 @@
 
 - `/admin.html`의 지식 목록에서 항목별 **FAQ 체크박스**로 선택한다 (최대 3개).  
 - 자세한 동작은 [09-admin-panel.md](09-admin-panel.md).
+
+## 구현 참고
+
+- 라우트는 [server/routes/faq.js](server/routes/faq.js)에 정의되고, [server/index.js](server/index.js)에서 `app.use('/api/faq', faqRouter)`로 마운트된다.  
+- `PUT`만 `requireAdminAuth` 미들웨어가 적용된다.

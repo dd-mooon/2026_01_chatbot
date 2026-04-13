@@ -7,7 +7,7 @@
 | [features/01-chat-pipeline.md](features/01-chat-pipeline.md) | **채팅 API** (`POST /api/chat`)와 답변이 결정되는 전체 순서 |
 | [features/02-exact-match.md](features/02-exact-match.md) | **키워드 Exact Match** — 질문에 키워드가 포함되면 등록 답을 그대로 반환 |
 | [features/03-chromadb-rag.md](features/03-chromadb-rag.md) | **ChromaDB** 벡터 검색, RAG용 컬렉션, `ingest.js` |
-| [features/04-ollama.md](features/04-ollama.md) | **Ollama** 연동, RAG 프롬프트 vs 일반 지식 답변, 타임아웃·환경 변수 |
+| [features/04-ollama.md](features/04-ollama.md) | **LLM(Ollama / Groq)** 연동, RAG·일반 지식 프롬프트, **`GET /api/ollama-status`** |
 | [features/05-knowledge-api.md](features/05-knowledge-api.md) | **지식 CRUD** REST API, JSON·Chroma 동기화 |
 | [features/06-unanswered.md](features/06-unanswered.md) | **미답변 로그** 저장·조회·삭제 API |
 | [features/07-faq-chips.md](features/07-faq-chips.md) | **FAQ 칩** (최대 3개), `/api/faq` |

@@ -17,7 +17,7 @@ Vite + React로 구현된 **사용자용 채팅 화면**의 구성과 데이터 
 | `client/src/components/EmptyState.jsx` | 대화 없을 때 안내 + FAQ. |
 | `client/src/components/LoadingSpinner.jsx` | 응답 대기 표시. |
 | `client/src/BotAvatar.jsx` | 봇 아바타 SVG. |
-| `client/src/utils/formatTime.js` | `formatMessageTime` — “방금 전”, 분 전, 시각 등 상대 표시. |
+| `client/src/utils/formatTime.js` | `formatMetaTime` — 말풍선 아래 시각 표시([ChatMessage.jsx](client/src/components/ChatMessage.jsx)). |
 | `client/src/config/constants.js` | `API_BASE`(`VITE_API_URL`), 회사 사이트, 답변 출처 라벨(`ANSWER_SOURCE_LABEL`). |
 
 ## API 연동
@@ -30,12 +30,13 @@ Vite + React로 구현된 **사용자용 채팅 화면**의 구성과 데이터 
 `useChat`이 서버 응답을 다음 필드까지 메시지에 넣는다:  
 `content`, `refLink`, `attachmentUrl`, `attachmentName`, `type`, `ollamaFailed`, `ollamaError`, `generalKnowledge`, `disclaimer`, `timestamp`.
 
-`ChatMessage`는 `ANSWER_SOURCE_LABEL`로 `exact_match` / `rag` / `no_match`(일반 지식 포함)에 따른 설명 문구를 하단에 표시한다.
+`ChatMessage`는 `ANSWER_SOURCE_LABEL`로 `exact_match` / `rag` / `no_match`(일반 지식 포함)에 따른 설명 문구를 하단에 표시한다.  
+서버가 내려주는 RAG 근거 배열 **`sources`는 `useChat`에서 메시지 상태에 넣지 않으며**, 채팅 UI에는 **문단 목록으로 펼쳐 보이지 않는다**(본문·링크·첨부·면책·유형 라벨 위주).
 
 ## 스타일
 
 - Tailwind 유틸 클래스 기반.  
-- Teams 느낌의 **보라 액센트(`#6264a7`)**, **회색 배경·테두리**, 둥근 말풍선 등은 컴포넌트 클래스에서 정의된다.
+- **틸 액센트(`#006666`)**, 흰 헤더·슬레이트 계열 배경·테두리, 둥근 말풍선 등은 컴포넌트 클래스에서 정의된다([ChatHeader.jsx](client/src/components/ChatHeader.jsx) 등).
 
 ## 관련 백엔드 문서
 
