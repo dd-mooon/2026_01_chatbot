@@ -257,7 +257,8 @@ npm run start:new
 | `ALLOWED_ORIGINS` | CORS, 쉼표 구분 |
 | `CHROMA_URL` / `CHROMA_HOST`·`CHROMA_PORT`·`CHROMA_SSL` | Chroma 연결 |
 | `CHROMA_API_TOKEN` | Chroma Cloud 등 |
-| `SUPERADMIN_EMAILS` | 쉼표로 여러 개. **설정 시** 이 목록의 이메일만 가입 시·기동 시 최고 관리자로 승격(빈 값이면 자동 승격 없음). **미설정 시** 기본으로 `connie.test@concentrix.com`만 데모용 최고 관리자 처리 |
+| `SUPERADMIN_EMAILS` | 쉼표로 여러 개. **추가**로 최고 관리자 승격 대상에 넣음(비워도 `connie.test@…` 데모는 기본 포함). |
+| `DISABLE_DEMO_SUPERADMIN` | `1` 또는 `true`이면 `connie.test` 자동 승격을 끄고, `SUPERADMIN_EMAILS`만 사용(운영 잠금용). |
 
 관리자 이메일 도메인은 환경 변수가 아니라 [server/config.js](server/config.js)의 `ADMIN_EMAIL_DOMAIN`에서 수정한다.
 

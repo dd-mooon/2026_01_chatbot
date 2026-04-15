@@ -20,20 +20,23 @@ export const ADMIN_EMAIL_DOMAIN = 'concentrix.com';
 
 /**
  * 가입 승인 API 등 최고 관리자(superadmin) 권한을 부여할 이메일.
- * - SUPERADMIN_EMAILS: 쉼표 구분. **설정한 경우** 그 목록만 사용(빈 값이면 자동 부여 없음).
- * - 미설정 시: README 데모 계정 `connie.test@${ADMIN_EMAIL_DOMAIN}` 한 명만 자동 부여.
+ * - 기본: README 데모 `connie.test@${ADMIN_EMAIL_DOMAIN}` 는 항상 포함(Render에서 SUPERADMIN_EMAILS가 빈 문자열이어도 승격됨).
+ * - SUPERADMIN_EMAILS: 쉼표 구분으로 **추가** 최고 관리자 이메일(선택).
+ * - DISABLE_DEMO_SUPERADMIN=1|true: 데모 이메일 제외, SUPERADMIN_EMAILS 목록만 사용(비우면 승격 대상 없음).
  */
 export function getSuperadminPromotionEmails() {
+  const demo = `connie.test@${ADMIN_EMAIL_DOMAIN}`;
+  const disableDemo =
+    process.env.DISABLE_DEMO_SUPERADMIN === '1' ||
+    process.env.DISABLE_DEMO_SUPERADMIN === 'true';
   const raw = process.env.SUPERADMIN_EMAILS;
-  if (raw !== undefined) {
-    return new Set(
-      raw
-        .split(',')
-        .map((s) => s.trim().toLowerCase())
-        .filter(Boolean)
-    );
-  }
-  return new Set([`connie.test@${ADMIN_EMAIL_DOMAIN}`]);
+  const extras =
+    raw !== undefined
+      ? raw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)
+      : [];
+  const set = new Set(extras);
+  if (!disableDemo) set.add(demo);
+  return set;
 }
 
 /**

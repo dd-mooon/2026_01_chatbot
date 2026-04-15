@@ -15,6 +15,14 @@
       "role": "admin",
       "status": "pending",
       "createdAt": "2026-04-09T04:20:00.810Z"
+    },
+    {
+      "id": "5ff88f71a824c1bbecb9ae89",
+      "email": "connie.test@concentrix.com",
+      "passwordHash": "612b9c3f6d7753acfb835cece2b15ead:b3da3fb7bcbba7929d5bd5aa899b84a6a425824442387516844d90ec0e0da2acde0ba09c2dda2c83a481bb69a66f62ba63eab2647fcf6ef614b68919031fd0c4",
+      "role": "superadmin",
+      "status": "active",
+      "createdAt": "2026-04-15T00:00:00.000Z"
     }
   ]
 }
