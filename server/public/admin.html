@@ -722,7 +722,7 @@
     <div class="main-intro">
       <p class="notice">
         <strong>등록·수정한 지식이 챗봇에서 바로 반영됩니다.</strong>
-        <a href="http://localhost:5173" target="_blank" rel="noopener" class="link-chat">챗봇 열기 (localhost:5173) →</a>
+        <a href="https://2026-01-chatbot.vercel.app/" target="_blank" rel="noopener" class="link-chat">챗봇 열기 →</a>
       </p>
       <div id="serverWarning" class="server-warning"></div>
     </div>
@@ -809,10 +809,10 @@
   </div>
 
   <script>
-    // 어드민은 서버(3001)에서 제공되므로 origin 사용. 5173에서 접속 시 API 서버(3001)로 요청
-    const API_BASE = (window.location.port === '5173')
-      ? 'http://localhost:3001'
-      : window.location.origin;
+    // 배포 API·챗봇 URL (README §2.1과 동일). Vite(5173)에서 어드민을 열 때만 API를 Render로 고정.
+    const DEPLOYED_API_ORIGIN = 'https://two026-01-chatbot-1.onrender.com';
+    const API_BASE =
+      window.location.port === '5173' ? DEPLOYED_API_ORIGIN : window.location.origin;
 
     function fetchApi(url, options = {}) {
       return fetch(url, { ...options, credentials: 'include' });

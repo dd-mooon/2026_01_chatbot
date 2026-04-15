@@ -147,7 +147,7 @@ flowchart LR
 
 **일반 사용자** — 빈 상태 안내 후 FAQ 칩 또는 직접 입력으로 질문한다. 응답으로 본문, 답변 유형 라벨, 관련 링크·첨부, 일반 지식일 때 면책 문구를 본다. RAG(`type: rag`)일 때는 **「참고한 사내 문단」** 접이식 블록에서 `sources` 근거 문단을 확인할 수 있다([useChat.js](client/src/hooks/useChat.js), [ChatMessage.jsx](client/src/components/ChatMessage.jsx)).
 
-**관리자** — `http://<서버 호스트>/admin.html`에 접속해, [server/config.js](server/config.js)의 `ADMIN_EMAIL_DOMAIN`(기본 `concentrix.com`) 이메일로 가입·로그인한다. 최초 한 명은 최고 관리자로 부트스트랩된다. 이후 지식·FAQ·미답변·업로드를 관리한다.
+**관리자** — `http://<서버 호스트>/admin.html`에 접속해(배포 예: [관리자 화면](https://two026-01-chatbot-1.onrender.com/admin.html)), [server/config.js](server/config.js)의 `ADMIN_EMAIL_DOMAIN`(기본 `concentrix.com`) 이메일로 가입·로그인한다. 최초 한 명은 최고 관리자로 부트스트랩된다. 이후 지식·FAQ·미답변·업로드를 관리한다. 관리자 화면의 **챗봇 열기**는 배포 챗봇 [Vercel](https://2026-01-chatbot.vercel.app/)으로 연결된다.
 
 ---
 

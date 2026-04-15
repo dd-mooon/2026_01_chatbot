@@ -11,7 +11,9 @@
 
 ## 접속
 
-- 서버 기동 후: `http://localhost:3001/admin.html` (포트는 `PORT` 환경 변수)  
+- **배포(과제 데모)**: [https://two026-01-chatbot-1.onrender.com/admin.html](https://two026-01-chatbot-1.onrender.com/admin.html)  
+- **로컬**: 서버 기동 후 `http://localhost:3001/admin.html` (포트는 `PORT` 환경 변수)  
+- 헤더의 **챗봇 열기** 링크는 배포 챗봇 [https://2026-01-chatbot.vercel.app/](https://2026-01-chatbot.vercel.app/) 로 연결된다.  
 - 루트 `GET /` 응답 JSON에도 `admin` 안내가 있다.
 
 ## 주요 섹션
