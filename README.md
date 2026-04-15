@@ -21,6 +21,17 @@ Connie는 웹 챗봇 UI와 REST API, 관리자 화면으로 구성된다. 사용
 - **미매칭 처리**: 사내 검색 결과가 없으면 미답변 로그를 남기고, 일반 지식 모드로 LLM을 호출할 수 있으며 이때 면책 문구를 붙인다.
 - **운영**: 지식 CRUD 시 JSON과 Chroma 컬렉션을 함께 갱신하고, FAQ 칩·미답변 목록·업로드·도메인 제한 가입·승인 흐름을 제공한다.
 
+### 2.1 배포 데모 URL·테스트 계정
+
+과제·스터디 검증용으로 올려 둔 주소는 다음과 같다.
+
+| 구분 | URL |
+|------|-----|
+| 챗봇 | [https://2026-01-chatbot.vercel.app/](https://2026-01-chatbot.vercel.app/) |
+| 관리자 | [https://two026-01-chatbot-1.onrender.com/admin.html](https://two026-01-chatbot-1.onrender.com/admin.html) |
+
+**테스트 계정**(관리자 로그인): 이메일 `connie.test@concentrix.com`(화면에서 `@concentrix.com`이 고정이면 앞부분만 `connie.test`), 비밀번호 `123456789`. 이 계정은 서버 설정상 **최고 관리자(superadmin)** 로 간주되어 **가입 즉시 활성·로그인**되며, **다른 관리자 가입 승인·거절**도 할 수 있다. 이미 `pending`으로만 남아 있다면 **서버를 한 번 재시작**하면 동일 권한으로 승격된다.
+
 ---
 
 ## 3. 시스템 동작 및 AI 설계
@@ -246,6 +257,7 @@ npm run start:new
 | `ALLOWED_ORIGINS` | CORS, 쉼표 구분 |
 | `CHROMA_URL` / `CHROMA_HOST`·`CHROMA_PORT`·`CHROMA_SSL` | Chroma 연결 |
 | `CHROMA_API_TOKEN` | Chroma Cloud 등 |
+| `SUPERADMIN_EMAILS` | 쉼표로 여러 개. **설정 시** 이 목록의 이메일만 가입 시·기동 시 최고 관리자로 승격(빈 값이면 자동 승격 없음). **미설정 시** 기본으로 `connie.test@concentrix.com`만 데모용 최고 관리자 처리 |
 
 관리자 이메일 도메인은 환경 변수가 아니라 [server/config.js](server/config.js)의 `ADMIN_EMAIL_DOMAIN`에서 수정한다.
 

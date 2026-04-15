@@ -47,11 +47,13 @@ router.post('/register', (req, res) => {
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
     }
-    if (result.bootstrap) {
+    if (result.user.status === 'active') {
       const { token } = createSession(result.user.id, result.user.email);
       setSessionCookie(res, token);
       return res.status(201).json({
-        message: '최고 관리자로 가입되었습니다.',
+        message: result.bootstrap
+          ? '최고 관리자로 가입되었습니다.'
+          : '가입되었습니다. 바로 로그인되었습니다.',
         user: { email: result.user.email, role: result.user.role },
       });
     }

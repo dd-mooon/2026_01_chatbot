@@ -19,6 +19,24 @@ export const FAQ_MAX = 3;
 export const ADMIN_EMAIL_DOMAIN = 'concentrix.com';
 
 /**
+ * 가입 승인 API 등 최고 관리자(superadmin) 권한을 부여할 이메일.
+ * - SUPERADMIN_EMAILS: 쉼표 구분. **설정한 경우** 그 목록만 사용(빈 값이면 자동 부여 없음).
+ * - 미설정 시: README 데모 계정 `connie.test@${ADMIN_EMAIL_DOMAIN}` 한 명만 자동 부여.
+ */
+export function getSuperadminPromotionEmails() {
+  const raw = process.env.SUPERADMIN_EMAILS;
+  if (raw !== undefined) {
+    return new Set(
+      raw
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+    );
+  }
+  return new Set([`connie.test@${ADMIN_EMAIL_DOMAIN}`]);
+}
+
+/**
  * CORS 허용 Origin
  * - ALLOWED_ORIGINS: 쉼표로 여러 개 (Render·로컬 .env)
  * - production: Vercel 프론트 기본값 병합

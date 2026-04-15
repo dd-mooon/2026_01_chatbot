@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
-import { ADMIN_USERS_FILE, ADMIN_EMAIL_DOMAIN } from '../config.js';
+import { ADMIN_USERS_FILE, ADMIN_EMAIL_DOMAIN, getSuperadminPromotionEmails } from '../config.js';
 
 function loadRaw() {
   try {
@@ -101,9 +101,28 @@ export function findUserById(id) {
   return listUsers().find((u) => u.id === id) || null;
 }
 
+/** 서버 기동 시: 설정된 이메일은 superadmin·active로 맞춤(이미 가입된 pending 계정 승격). */
+export function promoteConfiguredSuperAdmins() {
+  const promo = getSuperadminPromotionEmails();
+  if (!promo.size) return;
+  ensureMigrated();
+  const data = loadRaw();
+  let changed = false;
+  for (const u of data.users) {
+    if (!promo.has(u.email)) continue;
+    if (u.role !== 'superadmin' || u.status !== 'active') {
+      u.role = 'superadmin';
+      u.status = 'active';
+      changed = true;
+    }
+  }
+  if (changed) saveRaw(data);
+}
+
 /**
  * 첫 계정(bootstrap): superadmin + active, 즉시 로그인 가능.
  * 이후: admin + pending, 최고관리자 승인 후 로그인.
+ * getSuperadminPromotionEmails()에 포함된 이메일은 bootstrap이 아니어도 superadmin·active로 즉시 가입.
  */
 export function createUser(email, password) {
   const e = email.trim().toLowerCase();
@@ -116,8 +135,10 @@ export function createUser(email, password) {
   const id = randomBytes(12).toString('hex');
   const passwordHash = hashPassword(password);
   const isBootstrap = users.length === 0;
-  const role = isBootstrap ? 'superadmin' : 'admin';
-  const status = isBootstrap ? 'active' : 'pending';
+  const promo = getSuperadminPromotionEmails();
+  const forceSuper = promo.has(e);
+  const role = isBootstrap || forceSuper ? 'superadmin' : 'admin';
+  const status = isBootstrap || forceSuper ? 'active' : 'pending';
   users.push({
     id,
     email: e,

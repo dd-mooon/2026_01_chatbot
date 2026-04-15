@@ -10,6 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { PORT, UPLOADS_DIR, chromaConnection, CORS_ALLOWED_ORIGINS } from './config.js';
+import { promoteConfiguredSuperAdmins } from './services/adminUsers.js';
 import chatRouter from './routes/chat.js';
 import knowledgeRouter from './routes/knowledge.js';
 import uploadRouter from './routes/upload.js';
@@ -87,6 +88,8 @@ app.use((err, req, res, next) => {
     detail: err.stack ? undefined : err.message,
   });
 });
+
+promoteConfiguredSuperAdmins();
 
 const server = app.listen(PORT);
 
