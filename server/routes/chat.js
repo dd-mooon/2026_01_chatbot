@@ -11,6 +11,7 @@ import {
   FALLBACK_NO_KNOWLEDGE,
   GENERAL_KNOWLEDGE_DISCLAIMER,
 } from '../services/ollama.js';
+import { normalizeMultipartOriginalName } from '../utils/filenameUtf8.js';
 
 const router = Router();
 
@@ -29,7 +30,7 @@ router.post('/', async (req, res) => {
         answer: exactMatch.answer,
         refLink: exactMatch.refLink,
         attachmentUrl: exactMatch.attachmentUrl || null,
-        attachmentName: exactMatch.attachmentName || null,
+        attachmentName: normalizeMultipartOriginalName(exactMatch.attachmentName || '') || null,
         type: 'exact_match',
         matchedKeyword: exactMatch.matchedKeyword,
         sources: [],
@@ -70,7 +71,7 @@ router.post('/', async (req, res) => {
         type: 'rag',
         refLink: firstMeta.refLink || null,
         attachmentUrl: firstMeta.attachmentUrl || null,
-        attachmentName: firstMeta.attachmentName || null,
+        attachmentName: normalizeMultipartOriginalName(firstMeta.attachmentName || '') || null,
         sources: sources.map((s) => ({ text: s.text, metadata: s.metadata })),
       });
     } catch (ollamaErr) {

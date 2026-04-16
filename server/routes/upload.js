@@ -3,6 +3,7 @@
  */
 import { Router } from 'express';
 import { upload } from '../middleware/upload.js';
+import { normalizeMultipartOriginalName } from '../utils/filenameUtf8.js';
 
 const router = Router();
 
@@ -18,7 +19,10 @@ router.post('/', (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: '파일을 선택한 뒤 업로드 버튼을 눌러주세요.' });
     }
-    res.json({ url: '/uploads/' + req.file.filename, name: req.file.originalname });
+    res.json({
+      url: '/uploads/' + req.file.filename,
+      name: normalizeMultipartOriginalName(req.file.originalname),
+    });
   });
 });
 

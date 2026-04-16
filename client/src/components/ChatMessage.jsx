@@ -3,7 +3,7 @@
  */
 import BotAvatar from '../BotAvatar';
 import UserAvatar from './UserAvatar';
-import { ANSWER_SOURCE_LABEL } from '../config/constants.js';
+import { ANSWER_SOURCE_LABEL, resolveServerUrl } from '../config/constants.js';
 import { formatMetaTime } from '../utils/formatTime.js';
 
 const AVATAR_ACTIVE_MS = 1000;
@@ -99,7 +99,7 @@ export default function ChatMessage({ msg }) {
               )}
               {msg.attachmentUrl && (
                 <a
-                  href={msg.attachmentUrl}
+                  href={resolveServerUrl(msg.attachmentUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   download={msg.attachmentName || undefined}
