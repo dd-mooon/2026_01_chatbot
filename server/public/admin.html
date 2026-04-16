@@ -809,10 +809,19 @@
   </div>
 
   <script>
-    // 배포 API·챗봇 URL (README §2.1과 동일). Vite(5173)에서 어드민을 열 때만 API를 Render로 고정.
+    // 배포 챗봇 UI·API (README 2.1 데모 URL). Vite(5173)에서 어드민을 열 때만 API를 Render로 고정.
+    const DEPLOYED_CHAT_ORIGIN = 'https://2026-01-chatbot.vercel.app/';
     const DEPLOYED_API_ORIGIN = 'https://two026-01-chatbot-1.onrender.com';
     const API_BASE =
       window.location.port === '5173' ? DEPLOYED_API_ORIGIN : window.location.origin;
+
+    (function syncChatOpenLink() {
+      var el = document.querySelector('.link-chat');
+      if (el) {
+        el.setAttribute('href', DEPLOYED_CHAT_ORIGIN);
+        el.textContent = '챗봇 열기 →';
+      }
+    })();
 
     function fetchApi(url, options = {}) {
       return fetch(url, { ...options, credentials: 'include' });
