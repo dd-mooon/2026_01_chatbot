@@ -45,3 +45,19 @@
 - **미매칭·일반 지식**: **Groq** 호출 (면책 문구 등은 README·파이프라인 문서 참고).  
 
 Render 무료 플랜 **슬립** 시 첫 요청 지연 가능.
+
+---
+
+## 스터디 제출·시드 데이터 (재배포 후에도 유지)
+
+Render 기본 디스크는 **비영구**라서, 배포 후 어드민에서만 추가·수정한 지식이나 `server/uploads/`에 올린 파일은 **재시작·재배포 시 사라질 수 있습니다.**
+
+**고정(시드)으로 두는 방법**은 Git에 넣는 것입니다.
+
+| 경로 | 역할 |
+|------|------|
+| [server/data/exact-match-knowledge.json](server/data/exact-match-knowledge.json) | Exact Match·칩용 기본 지식 (저장소에 커밋됨) |
+| [server/data/faq.json](server/data/faq.json) | FAQ 칩에 노출할 지식 `id` 목록 |
+| [server/uploads/HR_Guidebook_demo.pdf](server/uploads/HR_Guidebook_demo.pdf) | 첨부 데모 PDF (커밋 시 배포본에서도 `/uploads/...`로 제공) |
+
+내용을 바꾼 뒤 **반드시 커밋·푸시**하면, 다음 배포부터 동일 데이터가 다시 깔립니다. RAG(Chroma)에도 반영하려면 프로젝트에 있는 수집·동기화 절차(예: ingest 스크립트)를 한 번 실행해야 할 수 있습니다.

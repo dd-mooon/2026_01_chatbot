@@ -1,24 +1,23 @@
 [
   {
     "id": "1",
-    "keywords": [
-      "건전지",
-      "건전지 어디",
-      "건전지 위치"
-    ],
+    "keywords": ["건전지", "건전지 어디", "건전지 위치"],
     "answer": "건전지는 본관 서혜정 차장님쪽 케비넷에 있습니다.",
     "refLink": "",
     "attachmentUrl": "",
     "attachmentName": ""
   },
   {
+    "id": "2",
+    "keywords": ["와이파이", "Wi-Fi", "사내 와이파이", "무선랜"],
+    "answer": "사내 무선랜은 IT 안내 메일 또는 사내 포털의 네트워크 가이드를 참고해 주세요. 비밀번호는 개인별로 재발급이 필요할 수 있습니다.",
+    "refLink": "",
+    "attachmentUrl": "",
+    "attachmentName": ""
+  },
+  {
     "id": "3",
-    "keywords": [
-      "연차 확인",
-      "연차 결재",
-      "연차 신청",
-      "연차"
-    ],
+    "keywords": ["연차 확인", "연차 결재", "연차 신청", "연차"],
     "answer": "잔여 연차 확인 및 연차 신청은 시프티앱에서 휴가 탭을 통해 확인가능합니다.",
     "refLink": "",
     "attachmentUrl": "",
@@ -26,27 +25,57 @@
   },
   {
     "id": "4",
-    "keywords": [
-      "가이드",
-      "hr 가이드",
-      "사내 가이드",
-      "가이드북"
-    ],
-    "answer": "사내 가이드는 첨부파일을 다운받아 확인바랍니다.",
+    "keywords": ["가이드", "hr 가이드", "사내 가이드", "가이드북"],
+    "answer": "사내 가이드는 첨부파일을 다운받아 확인바랍니다. (저장소에 포함된 데모 PDF입니다.)",
     "refLink": "",
-    "attachmentUrl": "/uploads/1773101133603-_HR_Guidebook_2024.10_deck.pdf",
-    "attachmentName": "âHR Guidebook_2024.10 deck.pdf"
+    "attachmentUrl": "/uploads/HR_Guidebook_demo.pdf",
+    "attachmentName": "HR_Guidebook_demo.pdf"
   },
   {
     "id": "5",
-    "keywords": [
-      "사내 홈페이지",
-      "콘센트릭스 홈페이지",
-      "콘센트릭스",
-      "사내 소식"
-    ],
+    "keywords": ["사내 홈페이지", "콘센트릭스 홈페이지", "콘센트릭스", "사내 소식"],
     "answer": "아래 링크와 같습니다.",
     "refLink": "https://kr.catalyst.concentrix.com/",
+    "attachmentUrl": "",
+    "attachmentName": ""
+  },
+  {
+    "id": "6",
+    "keywords": ["주차", "주차장", "주차 등록"],
+    "answer": "주차 등록 및 잔여 면수는 시설/총무 담당자에게 문의하거나 사내 안내 게시판을 확인해 주세요.",
+    "refLink": "",
+    "attachmentUrl": "",
+    "attachmentName": ""
+  },
+  {
+    "id": "7",
+    "keywords": ["구내식당", "식당", "조식", "중식"],
+    "answer": "구내식당 운영 시간·메뉴는 사내 안내 또는 층별 게시물을 확인해 주세요.",
+    "refLink": "",
+    "attachmentUrl": "",
+    "attachmentName": ""
+  },
+  {
+    "id": "8",
+    "keywords": ["건강검진", "검진", "의료비"],
+    "answer": "건강검진 일정·병원 지정은 인사/복리후생 안내를 따릅니다. 세부 사항은 시프티 또는 사내 메일을 확인해 주세요.",
+    "refLink": "",
+    "attachmentUrl": "",
+    "attachmentName": ""
+  },
+  {
+    "id": "9",
+    "keywords": ["노트북", "IT", "헬프데스크", "장애 접수"],
+    "answer": "PC·계정·VPN 등 IT 장애는 사내 IT 헬프데스크(포털 또는 지정 메일)로 접수해 주세요.",
+    "refLink": "",
+    "attachmentUrl": "",
+    "attachmentName": ""
+  },
+  {
+    "id": "10",
+    "keywords": ["복리후생", "복지", "경조사", "교육비"],
+    "answer": "복리후생·경조사·교육 지원은 HR 가이드 및 사내 정책 페이지를 참고해 주세요.",
+    "refLink": "",
     "attachmentUrl": "",
     "attachmentName": ""
   }
