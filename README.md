@@ -228,7 +228,7 @@ cd client && npm run dev             # http://localhost:5173
 ```
 
 **배포**: [DEPLOY.md](./DEPLOY.md)  
-**Microsoft Teams 탭**(웹 URL 개인 탭): [teams/README.md](./teams/README.md)
+**Microsoft Teams 탭**(웹 URL 개인 탭): [teams/TEAMS_TAB.md](./teams/TEAMS_TAB.md)
 
 **Teams와 스터디 제출**
 
