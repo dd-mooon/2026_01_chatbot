@@ -2,8 +2,8 @@
 
 ## 목적
 
-ChromaDB에서 **관련 지식을 찾지 못한** 질문을 기록해, 나중에 지식으로 등록하거나 분석할 수 있게 한다.  
-또한 RAG 단계에서 **LLM(Ollama/Groq)이 실패**한 경우에도 질문이 미답변에 남을 수 있다(채팅 라우트 로직 참고).
+ChromaDB **관련 지식 미검색** 질문 **기록**·추후 지식 등록·분석 **용도**.  
+RAG 단계 **LLM(Ollama/Groq) 실패** 시에도 질문 미답변 **잔존 가능** (채팅 라우트 로직 **참고**).
 
 ## 저장 형식
 
@@ -14,13 +14,13 @@ ChromaDB에서 **관련 지식을 찾지 못한** 질문을 기록해, 나중에
 
 구현: `server/services/unanswered.js`.
 
-- 동일 `question` 문자열이 이미 있으면 **중복 추가하지 않는다**.  
-- 질문은 `trim` 후 저장한다.
+- 동일 `question` 문자열 기존 존재 시 중복 추가 **생략**  
+- 질문 `trim` 후 저장
 
-채팅 파이프라인에서 호출되는 경우:
+채팅 파이프라인 **호출** 경우:
 
-- Chroma 검색 결과가 **0건**일 때 — **일반 지식 LLM이 성공해도** 먼저 미답변에 남긴다(사내 지식 미매칭 기록용).  
-- RAG 경로에서 **LLM 오류** 시(503 분기).
+- Chroma 검색 **0건** — 일반 지식 LLM 성공 **이전에도** 미답변 **기록** (사내 지식 미매칭 로그 용도)  
+- RAG 경로 **LLM 오류** (503 분기)
 
 ## REST API
 
@@ -28,10 +28,10 @@ ChromaDB에서 **관련 지식을 찾지 못한** 질문을 기록해, 나중에
 |--------|------|------|
 | `GET` | `/api/unanswered` | `{ unanswered: [...] }` 전체 목록 |
 | `DELETE` | `/api/unanswered/:id` | 한 건 제거 |
-| `DELETE` | `/api/unanswered/bulk` | 본문 `{ "ids": ["id1","id2"] }`로 선택 삭제, 또는 `ids` 없으면 **전체 삭제** |
+| `DELETE` | `/api/unanswered/bulk` | 본문 `{ "ids": ["id1","id2"] }` 선택 삭제·`ids` 없으면 **전체 삭제** |
 
 ## 관련 파일
 
 - `server/routes/unanswered.js`  
 - `server/services/unanswered.js`  
-- `server/routes/chat.js` — `addUnanswered` 호출부  
+- `server/routes/chat.js` — `addUnanswered` **호출부**  

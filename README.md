@@ -125,7 +125,9 @@ flowchart LR
 │   ├── data/               # exact-match, faq, admin-users, unanswered 등
 │   └── uploads/
 ├── teams/                  # Teams 개인 탭용 매니페스트·아이콘(zip 패키지 원본)
-├── docs/features/          # 파이프라인·기능별 상세
+├── docs/
+│   ├── FEATURES-INDEX.md   # 기능별 문서 목차 (루트 README와 구분)
+│   └── features/           # 파이프라인·기능별 상세
 ├── DEPLOY.md
 └── README.md
 ```
@@ -184,7 +186,7 @@ flowchart LR
 ### 7.3 지식 데이터와 벡터 동기화
 
 - 초기 적재: `cd server && node ingest.js` → 컬렉션 `company_knowledge`([config.js](server/config.js)의 `COLLECTION_NAME`).
-- 운영 편집: 원본 `server/data/exact-match-knowledge.json`, 관리자 API CRUD 시 [server/routes/knowledge.js](server/routes/knowledge.js)가 Chroma 반영 시도. Chroma 쓰기 실패 시 JSON만 갱신 가능 → 로그 확인 권장.
+- 운영 편집: 원본 `server/data/exact-match-knowledge.json`, 관리자 API CRUD 시 [server/routes/knowledge.js](server/routes/knowledge.js) Chroma 반영 **시도**. Chroma 쓰기 실패 시 JSON만 갱신 **가능**·로그 확인 **권장**.
 
 ---
 
@@ -230,9 +232,9 @@ cd client && npm run dev             # http://localhost:5173
 
 **Teams와 스터디 제출**
 
-- **현재 상태**: 조직 Microsoft Teams 커스텀 앱(코니) 패키지 **제출 완료**, 테넌트 정책에 따라 **IT 관리자 승인 대기(Pending)**. 승인·게시 후 스토어 **조직용 빌드** 등에서 설치 가능.
-- **스터디 제출**: 과제·데모 검증 — 배포 **웹 URL**, 본 README·`DEPLOY.md`. Teams **승인 대기**여도 제출·평가와 분리 가능.
-- **참고(매니페스트·조직 정책)**: 승인·게시 후 **배포 URL** 변경, 테넌트 **도메인 허용(`validDomains`)·정책 URL** 요구 시 [teams/manifest.json](./teams/manifest.json) 수정 → [teams/README.md](./teams/README.md) 절차로 zip 재제출. 제출·승인·게시: **조직별 상이** — 내부 IT·Teams 관리 안내 참고. 웹 앱만 사용 시 **Teams 연동만으로 코드 즉시 수정 필수는 아님**.
+- **현재 상태**: 조직 Microsoft Teams 커스텀 앱(코니) 패키지 **제출 완료**, 테넌트 정책에 따라 **IT 관리자 승인 대기(Pending)**. 승인·게시 완료 후 스토어 **조직용 빌드** 등 경로의 구성원 설치 **가능에 대한 기대**. 최종 여부 확정은 테넌트 정책·관리자 처리 **에 따름**.
+- **스터디 제출**: 과제·데모 검증 — 배포 **웹 URL**, 본 README·`DEPLOY.md`.
+
 
 **macOS Chrome(서버 폴더에서)**
 
@@ -277,8 +279,9 @@ PORT=3002 OLLAMA_MODEL=llama3:latest npm run start
 - [ ] 임베딩·검색 품질 튜닝  
 - [ ] 미답변 → 지식 반영 자동화(알림 등)  
 
-**상세 기술 문서**(README는 요약만)
+**상세 기술 문서**(루트 README는 요약만)
 
+- [docs/FEATURES-INDEX.md](docs/FEATURES-INDEX.md) — 기능별 문서 전체 목차·읽는 순서  
 - [docs/features/01-chat-pipeline.md](docs/features/01-chat-pipeline.md) — 처리 순서·응답 필드  
 - [docs/features/03-chromadb-rag.md](docs/features/03-chromadb-rag.md), [04-ollama.md](docs/features/04-ollama.md)  
 - [docs/features/09-admin-panel.md](docs/features/09-admin-panel.md), [11-admin-auth.md](docs/features/11-admin-auth.md)  

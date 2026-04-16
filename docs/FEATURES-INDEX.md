@@ -1,14 +1,14 @@
 # 코니(Connie) 기능별 문서
 
-프로젝트 기능을 **역할 단위**로 나눈 상세 설명입니다. 배포·설치는 루트의 `README.md`, `DEPLOY.md`를 참고하세요.
+프로젝트 기능 **역할 단위** 분할 상세 설명. 배포·설치: 저장소 루트 `README.md`, `DEPLOY.md` **참고**.
 
 | 문서 | 내용 |
 |------|------|
-| [features/01-chat-pipeline.md](features/01-chat-pipeline.md) | **채팅 API** (`POST /api/chat`)와 답변이 결정되는 전체 순서 |
-| [features/02-exact-match.md](features/02-exact-match.md) | **키워드 Exact Match** — 질문에 키워드가 포함되면 등록 답을 그대로 반환 |
+| [features/01-chat-pipeline.md](features/01-chat-pipeline.md) | **채팅 API** (`POST /api/chat`)와 답변 결정 **전체 순서** |
+| [features/02-exact-match.md](features/02-exact-match.md) | **키워드 Exact Match** — 질문에 키워드 포함 시 등록 답 **그대로 반환** |
 | [features/03-chromadb-rag.md](features/03-chromadb-rag.md) | **ChromaDB** 벡터 검색, RAG용 컬렉션, `ingest.js` |
 | [features/04-ollama.md](features/04-ollama.md) | **LLM(Ollama / Groq)** 연동, RAG·일반 지식 프롬프트, **`GET /api/ollama-status`** |
-| [features/05-knowledge-api.md](features/05-knowledge-api.md) | **지식 CRUD** REST API, JSON·Chroma 동기화 |
+| [features/05-knowledge-api.md](features/05-knowledge-api.md) | **지식 CRUD** REST API, JSON·Chroma **동기화** |
 | [features/06-unanswered.md](features/06-unanswered.md) | **미답변 로그** 저장·조회·삭제 API |
 | [features/07-faq-chips.md](features/07-faq-chips.md) | **FAQ 칩** (최대 3개), `/api/faq` |
 | [features/08-file-upload.md](features/08-file-upload.md) | **파일 업로드** (`POST /api/upload`), 용량·저장 경로 |
@@ -18,7 +18,7 @@
 
 ### 읽는 순서 제안
 
-1. 답이 어떻게 나오는지 전체 그림: `01-chat-pipeline.md`  
+1. 답변 흐름 **전체 그림**: `01-chat-pipeline.md`  
 2. 백엔드 세부: `02` → `03` → `04`  
 3. 데이터·운영: `05` → `06` → `07` → `08` → `09`  
 4. 관리자 보안: `11-admin-auth.md` (어드민 사용 시)  
