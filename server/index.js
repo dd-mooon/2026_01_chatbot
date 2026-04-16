@@ -75,7 +75,20 @@ app.use('/api/unanswered', requireAdminAuth, unansweredRouter);
 app.use('/api/faq', faqRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(UPLOADS_DIR));
+app.use(
+  '/uploads',
+  express.static(UPLOADS_DIR, {
+    setHeaders(res, filePath) {
+      const name = path.basename(filePath);
+      const ascii = name.replace(/[^\x20-\x7E]/g, '_').replace(/"/g, '_') || 'file';
+      const star = encodeURIComponent(name);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${ascii}"; filename*=UTF-8''${star}`
+      );
+    },
+  })
+);
 
 app.use('/api', (req, res) => {
   res.status(404).json({ error: '해당 API를 찾을 수 없습니다.', path: req.path });

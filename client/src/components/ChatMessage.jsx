@@ -1,6 +1,7 @@
 /**
  * 채팅 메시지 — 코니 HR 어시스턴트 스타일
  */
+import { useCallback } from 'react';
 import BotAvatar from '../BotAvatar';
 import UserAvatar from './UserAvatar';
 import { ANSWER_SOURCE_LABEL, resolveServerUrl } from '../config/constants.js';
@@ -8,10 +9,41 @@ import { formatMetaTime } from '../utils/formatTime.js';
 
 const AVATAR_ACTIVE_MS = 1000;
 
+function safeDownloadFilename(name) {
+  const base = (name && String(name).trim()) || 'attachment';
+  return base.replace(/[/\\?%*:|"<>]/g, '_').slice(0, 180) || 'attachment';
+}
+
 export default function ChatMessage({ msg }) {
   const isUser = msg.role === 'user';
   const isAssistant = msg.role === 'assistant';
   const metaTime = msg.timestamp ? formatMetaTime(msg.timestamp) : '';
+
+  const onAttachmentClick = useCallback(
+    async (e) => {
+      if (!msg.attachmentUrl) return;
+      const url = resolveServerUrl(msg.attachmentUrl);
+      const filename = safeDownloadFilename(msg.attachmentName);
+      e.preventDefault();
+      try {
+        const res = await fetch(url, { mode: 'cors', credentials: 'omit' });
+        if (!res.ok) throw new Error('fetch failed');
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = filename;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      } catch {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    },
+    [msg.attachmentUrl, msg.attachmentName]
+  );
 
   return (
     <div
@@ -102,7 +134,7 @@ export default function ChatMessage({ msg }) {
                   href={resolveServerUrl(msg.attachmentUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  download={msg.attachmentName || undefined}
+                  onClick={onAttachmentClick}
                   className="inline-flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-slate-50 hover:bg-[#e8f4f4] border border-slate-200/80 text-[#0f172a] hover:text-[#006666] transition-colors text-sm font-medium"
                 >
                   <span className="shrink-0 w-7 h-7 rounded-lg bg-[#006666]/10 flex items-center justify-center text-[#006666] text-xs">📎</span>
